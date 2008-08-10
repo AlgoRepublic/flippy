@@ -1,0 +1,4 @@
+To make setFocus() working for the first time the movie was loaded, 
+add below code in the bottom of the script tag that embed the movie within index.template.html:
+
+        document.getElementById("${application}").focus();

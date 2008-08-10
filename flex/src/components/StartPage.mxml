@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%">
+	<mx:Script>
+		<![CDATA[
+			[Bindable]
+			public var loginInfo:LoginInfo;
+		]]>
+	</mx:Script>
+	<mx:Label text="{loginInfo.userName}"/>
+	<mx:Label text="{loginInfo.password}"/>
+	<mx:Label text="{loginInfo.rememberMe}"/>	
+</mx:VBox>
