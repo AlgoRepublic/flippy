@@ -6,6 +6,19 @@ package components
 	import mx.collections.ArrayCollection;
 	import mx.containers.Canvas;
 	
+	/**
+	 * This is a paper. All drawing area is on the paper. We define tool to draw a paper such as:
+	 * <ul>
+	 * 	<li>Rectangle Tool</li>
+	 *  <li>Oval Tool</li>
+	 *  <li>Line Tool</li>
+	 *  <li>Pen Tool</li>
+	 * </ul>
+	 * For a specified tool we can determine a property such line style (thickness, line color, fill color, etc).
+	 *  
+	 * @author uudashr
+	 * 
+	 */
 	public class Paper extends Canvas 
 	{
 		private var drawables:ArrayCollection = new ArrayCollection();
@@ -18,7 +31,7 @@ package components
 		private var fillColorVal:uint = 0;
 		private var opaqueVal:Boolean = true;
 		private var fillAlphaVal:Number = 1;
-		
+		//private var timer:Timer = new Timer(500);
 		// TODO uudashr: add different cursor based on the tools when entering the draw area
 		
 		public function Paper()
@@ -31,6 +44,7 @@ package components
 			addEventListener(MouseEvent.MOUSE_OVER, mouseOverHandler);
 			addEventListener(MouseEvent.ROLL_OUT, rollOutHandler);
 			addEventListener(MouseEvent.ROLL_OVER, rollOverHandler);
+			//timer.addEventListener(TimerEvent.TIMER, drawPenLine);
 		}
 		
 		private function mouseOutHandler(event:MouseEvent):void
@@ -124,7 +138,7 @@ package components
 			strokeThicknessVal = thickness;
 		}
 		
-		protected function mouseDownHandler(event:MouseEvent):void
+		private function mouseDownHandler(event:MouseEvent):void
 		{
 			trace("mouseDown(" + event.localX + "," + event.localY + ") - " + activeToolId);
 			if (activeToolId == "rectangleTool")
@@ -161,9 +175,17 @@ package components
 						fillColor:fillColorVal, 
 						fillAlpha:fillAlphaVal};
 			}
+			else if (activeToolId == "penTool")
+			{
+				activeDrawObject = {
+						type:"pen", 
+						path:[{x:event.localX, y:event.localY}], 
+						strokeColor:strokeColorVal, 
+						strokeThickness:strokeThicknessVal};
+			}
 		}
 		
-		protected function mouseMoveHandler(event:MouseEvent):void
+		private function mouseMoveHandler(event:MouseEvent):void
 		{
 			//trace("mouseMove(" + event.localX + "," + event.localY + ") - " + activeToolId);
 			/*
@@ -207,9 +229,13 @@ package components
 				activeDrawObject.width = x - activeDrawObject.x;
 				activeDrawObject.height = y - activeDrawObject.y;
 			}
+			else if (activeDrawObject.type == "pen")
+			{
+				activeDrawObject.path.push({x:x, y:y});
+			}
 		}
 		
-		protected function mouseUpHandler(event:MouseEvent):void {
+		private function mouseUpHandler(event:MouseEvent):void {
 			trace("mouseUp(" + event.localX + "," + event.localY + ") - " + activeToolId);
 			//trace("Release Object: " + activeDrawObject.x + ", " + activeDrawObject.y + ", " + activeDrawObject.width + ", " + activeDrawObject.height);
 			revalidateActiveDrawableObject(event.localX, event.localY);
@@ -284,6 +310,16 @@ package components
 				}
 				graphics.drawEllipse(drawable.x, drawable.y, drawable.width, drawable.height);
 				graphics.endFill();
+			}
+			else if (drawable.type == "pen")
+			{
+				graphics.lineStyle(drawable.strokeThickness, drawable.strokeColor);
+				graphics.moveTo(drawable.path[0].x, drawable.path[0].y);
+				for (var i:int = 1; i < drawable.path.length; i++)
+				{
+					var obj:Object = drawable.path[i];
+					graphics.lineTo(obj.x, obj.y);
+				}
 			}
 			else
 			{
