@@ -5,79 +5,117 @@
 			import mx.events.ValidationResultEvent;
 			import mx.validators.Validator;
 
-			[Bindable]
-			public var loginInfo:LoginInfo;
-			
+			private var loginInfoSO:SharedObject;
+
 			// ------------ Init
 			public function init():void {
 				txtUserName.setFocus();
 				focusManager.defaultButton = btnLogin;
+				loginInfoSO = SharedObject.getLocal("com.flippy.Login");
+				
+				trace("so:" + loginInfoSO.data.login);
+				if (loginInfoSO.data.login != undefined) {
+					// check expire date
+					
+					txtUserName.text = loginInfoSO.data.login.userName;
+					txtPwd.text = loginInfoSO.data.login.password;
+					cbRem.selected = loginInfoSO.data.login.rememberMe;
+				}
 			}
 			
 			// ------------ GUI Logic
 			public function validate():void {
-				if (userNameValidator.validate().type == ValidationResultEvent.VALID
-				    && passwordValidator.validate().type == ValidationResultEvent.VALID) {
-				
-					var valid:Boolean = false;
+				if (userNameValidator.validate().type == ValidationResultEvent.VALID) {
+				    
+					var loginInfo:LoginInfo = new LoginInfo(txtUserName.text, txtPwd.text, cbRem.selected);
 					
-					loginInfo = new LoginInfo(txtUserName.text, txtPwd.text, cbRem.selected);
-					
-					// do query
-					valid = doQuery();
-					
-					trace(loginInfo.userName);
-					trace(loginInfo.password);
-					trace(loginInfo.rememberMe);
-					
-					if (valid) {
-						dispatchEvent(new Event("authorized"));
+					// save user name in shared object
+					if (cbRem.selected) {
+						writeSO(loginInfo);
 					} else {
-						doInvalid("Invalid UserName or Password");
+						deleteSO();
 					}
+					
+					if (passwordValidator.validate().type == ValidationResultEvent.VALID) {
+					
+						// do query
+						var valid:Boolean = doQuery(loginInfo);
+						
+						if (valid) {
+							// dispatch Authorized!
+							dispatchEvent(new LoginEvent("authorized", false, false, loginInfo));
+						} else {
+							doInvalid("Invalid UserName or Password");
+						}
+						
+					} else {
+						doInvalid("Please fill password field");
+					}
+					
 				} else {
 					doInvalid("Please fill the required fields with valid information");
 				}
 			}
 			
 			public function doInvalid(errMsg:String):void {
-				clearAll();
-				lblErr.text = errMsg;
+				clearPassword();
+				txtErr.text = errMsg;
 				moveEffect.play();
 			}
 			
-			public function clearAll():void {
-				//lblErr.text = "";
-				//txtUserName.text = "";
+			public function clearPassword():void {
 				txtPwd.text = "";
-				//cbRem.selected = false;
+				deletePasswordSO();
 			}
 			
 			// -------------- Authentication logic
-			public function doQuery():Boolean {
+			public function doQuery(loginInfo:LoginInfo):Boolean {
 				if (loginInfo.userName == "hendra" && loginInfo.password == "manager") {
 					return true;
 				}
 				return false;
 			}
+			
+			// -------------- SO functions
+			
+			private function writeSO(loginInfo:LoginInfo):void {
+				trace("saving so: " + loginInfo);
+				loginInfoSO.data.login = loginInfo;
+				loginInfoSO.flush(); // force write to disk
+			}
+			
+			private function deleteSO():void {
+				trace("deleting so: " + loginInfoSO.data.login);
+				if (loginInfoSO.data.login != undefined) {
+					delete loginInfoSO.data.login;
+				}
+			}
+			
+			private function deletePasswordSO():void {
+				if (loginInfoSO.data.login != undefined) {
+					loginInfoSO.data.login.password = "";
+					loginInfoSO.flush();
+				}
+			}
+			
 		]]>
 	</mx:Script>
 	<mx:Metadata>
-		[Event(name="authorized")]
+		[Event(name="authorized", type="components.LoginEvent")]
 	</mx:Metadata>
 	
 	<mx:StringValidator id="userNameValidator" source="{txtUserName}" property="text" required="true"/>
 	<mx:StringValidator id="passwordValidator" source="{txtPwd}" property="text" required="true" />
 	
 	<mx:Parallel id="moveEffect" target="{loginPanel}">		
-		<mx:Sequence repeatCount="4" >
-			<mx:Move duration="20" xBy="10" yBy="10"/>
-			<mx:Move duration="30" xBy="-20" yBy="-20"/>
-			<mx:Move duration="20" xBy="10" yBy="10"/>
+		<mx:Sequence repeatCount="3" >
+			<mx:Move duration="20" xBy="10" yBy="5"/>
+			<mx:Move duration="30" xBy="-20" yBy="-10"/>
+			<mx:Move duration="20" xBy="10" yBy="5"/>
 		</mx:Sequence>
 	</mx:Parallel>
 	
-	<mx:Panel id="loginPanel" width="330" height="240" title="Login">
+	<mx:Panel width="340" height="240" title="Login" id="loginPanel">
 		<mx:Form>
 			<mx:FormItem label="User Name">
 				<mx:TextInput id="txtUserName" />
@@ -86,13 +124,13 @@
 				<mx:TextInput id="txtPwd" displayAsPassword="true" />
 			</mx:FormItem>
 			<mx:FormItem>
+				<mx:CheckBox id="cbRem" label="Remember me on this computer"/>
+			</mx:FormItem>
+			<mx:FormItem>
 				<mx:Button id="btnLogin" label="Login" click="validate()"/>
 			</mx:FormItem>
 			<mx:FormItem>
-				<mx:CheckBox id="cbRem" label="Remember Me"/>
-			</mx:FormItem>
-			<mx:FormItem>
-				<mx:Label id="lblErr" color="#F1240E" width="100%"/>
+				<mx:Text width="157" id="txtErr" color="#FF0000"/>
 			</mx:FormItem>
 		</mx:Form>
 	</mx:Panel>
