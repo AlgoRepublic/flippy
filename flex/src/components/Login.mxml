@@ -70,7 +70,7 @@
 			
 			// -------------- Authentication logic
 			public function doQuery(loginInfo:LoginInfo):Boolean {
-				if (loginInfo.userName == "hendra" && loginInfo.password == "manager") {
+				if (/*loginInfo.userName == "hendra" && */loginInfo.password == "manager") {
 					return true;
 				}
 				return false;
