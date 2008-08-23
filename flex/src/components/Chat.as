@@ -56,6 +56,14 @@ package components
 			nc.call("subscribe", res, sessionId, topic, from);
 		}
 		
+		public function disableTopic(topic:String, message:String):void {
+			nc.call("disableTopic", res, sessionId, topic, from, true, message);
+		}
+		
+		public function enableTopic(topic:String, message:String):void {
+			nc.call("disableTopic", res, sessionId, topic, from, false, message);
+		}
+		
 		public function onStatus(event:NetStatusEvent):void {
 			if (event.info.code == "NetConnection.Connect.Success") {
 				// subscribe
