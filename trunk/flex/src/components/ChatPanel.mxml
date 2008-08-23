@@ -136,6 +136,14 @@
 				}
 			}
 			
+			public function disableTopic(topic:String, msg:String):void {
+				chatManager.disableTopic(topic, msg);
+			}
+			
+			public function enableTopic(topic:String, msg:String):void {
+				chatManager.enableTopic(topic, msg);
+			}
+			
 			// ---------------- SERVER CALL
 			public function onMessage(event:MessageEvent):void {
 				trace("get message: " + event.message + " from " + event.from);
@@ -149,7 +157,6 @@
 					// create
 					addChatBox(event.from, event.sendTo, event.topic, event.message, false);
 				}
-				
 			}
 			
 		]]>

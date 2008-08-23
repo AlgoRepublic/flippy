@@ -12,25 +12,33 @@ import com.wowza.wms.request.RequestFunction;
 
 public class Chat extends ModuleBase implements IModuleCallResult {
 
-	/*
-	 * sessionsMap<SessionId, TopicsMap>
-	 *     +-- TopicsMap<TopicId, clientId>
-	 * ClientsMap<ClientId, ChatClient> 
+	/**
+	 * List of connected client identified by clientId
 	 */
 	private Map<String, IClient> mClientsMap = new Hashtable<String, IClient>();
-	private Map<String, Map<String, String>> mClientsTopics = new Hashtable<String, Map<String,String>>();
+	
+	/**
+	 * List of connected client identified by userId
+	 */
 	private Map<String, IClient> mClientsUsers = new Hashtable<String, IClient>();
 	
+	/**
+	 * List of topics that a client subscribe to
+	 */
+	private Map<String, Map<String, String>> mClientsTopics = new Hashtable<String, Map<String,String>>();
 	
-	private Map<String, Map<String,ChatClient>> mTopicsMap = new Hashtable<String, Map<String,ChatClient>>();
-	
+	/**
+	 * List of currently subscribed topic.
+	 * contains list of clients who subscribed to a topic
+	 */
+	private Map<String, Topic> mTopicsMap = new Hashtable<String, Topic>();
 	
 	// ----------------- CHAT RPC  ------------------------
 	public void publish(IClient client, RequestFunction function,
 			AMFDataList params) {
 		getLogger().info("publish");
 		
-		ChatClient cc = composeChatClient(client, function, params);
+		PublishRequest cc = getPublishRequest(client, function, params);
 		
 		doPublish(cc);
 	}
@@ -39,7 +47,7 @@ public class Chat extends ModuleBase implements IModuleCallResult {
 			AMFDataList params) {
 		getLogger().info("subscribe");
 		
-		ChatClient cc = composeChatClient(client, function, params);
+		SubscribeRequest cc = getSubscribeRequest(client, function, params);
 		
 		addChatClient(cc);
 	}
@@ -47,7 +55,7 @@ public class Chat extends ModuleBase implements IModuleCallResult {
 	public void unSubscribe(IClient client, RequestFunction function, AMFDataList params) {
 		getLogger().info("unSubscribe");
 		
-		ChatClient cc = composeChatClient(client, function, params);
+		SubscribeRequest cc = getSubscribeRequest(client, function, params);
 
 		removeChatClient(cc);
 	}
@@ -56,149 +64,232 @@ public class Chat extends ModuleBase implements IModuleCallResult {
 			AMFDataList params) {
 		getLogger().info("sendChatRequest");
 		
-		ChatClient cc = composeChatClient(client, function, params);
+		PublishRequest cc = getPublishRequest(client, function, params);
 		
 		
-		IClient destClient = mClientsUsers.get(cc.getSendTo());
+		IClient destClient = mClientsUsers.get(cc.getDestUserName());
 		if (destClient != null) {
 			
 			// check should be from the same session
 			getLogger().info("About to call: onChatRequest");
 			
 			// subscribe sender to this topic
-			getLogger().info("About to subscribe " + cc.getFrom() + " to topic: " + cc.getTopic());
+			getLogger().info("About to subscribe " + cc.getUserName() + " to topic: " + cc.getTopic());
 			addChatClient(cc);
 			
-			ChatClient dc = new ChatClient();
+			// subscribe dest to this topic 
+			SubscribeRequest dc = new SubscribeRequest();
 			dc.setClient(destClient);
-			dc.setFrom(cc.getSendTo());
+			dc.setUserName(cc.getDestUserName());
 			dc.setId(String.valueOf(destClient.getClientId()));
-			dc.setSendTo(cc.getFrom());
 			dc.setSessionId(cc.getSessionId());
 			dc.setTopic(cc.getTopic());
 
-			// subscribe dest to this topic
-			getLogger().info("About to subscribe " + dc.getFrom() + " to topic: " + dc.getTopic());
+			getLogger().info("About to subscribe " + dc.getUserName() + " to topic: " + dc.getTopic());
 			addChatClient(dc);
 			
+			// publish to both
 			publish(client, function, params);
-//			destClient.call("onChatRequest", this, cc.getFrom(), cc.getTopic(), cc.getMessage());
 			
-			sendResult(client, params, "success sending chat request to: " + cc.getMessage() + " from: " + cc.getFrom());
+			sendResult(client, params, "success sending chat request to: " + cc.getMessage() + " from: " + cc.getUserName());
 		} else {
 			
-			getLogger().info("Failed calling onChatRequest: no client with name" + cc.getSendTo() + " was found");
-			sendResult(client, params, "err:No Client with name: " + cc.getSendTo());
+			getLogger().info("Failed calling onChatRequest: no client with name" + cc.getDestUserName() + " was found");
+			sendResult(client, params, "client with name " + cc.getDestUserName() + " does not exists");
 		}
 	}
 	
-	// ---------------- HELPER ------------------------------
-	public static ChatClient composeChatClient(IClient client, RequestFunction function,
+	public void disableTopic(IClient client, RequestFunction function,
 			AMFDataList params) {
-		ChatClient cc = new ChatClient();
+		getLogger().info("disableTopic");
+		
+		TopicStatusRequest cc = getTopicStatusRequest(client, function, params);
+
+		String topic = cc.getTopic();
+		
+		Topic t = mTopicsMap.get(topic);
+		
+		if (t != null) {
+			getLogger().info( (cc.isDisableTopic()?" disabling":" enabling") + " topic + '" + topic + "'" );
+			
+			PublishRequest pr = getPublishRequest(client, function, params);
+			pr.setMessage(cc.getMessage());
+			
+			if (cc.isDisableTopic()) {
+				doPublish(pr);
+				t.setDisabled(cc.isDisableTopic());
+			} else if (t.isDisabled() && !cc.isDisableTopic()) {
+				t.setDisabled(cc.isDisableTopic());
+				doPublish(pr);
+			}
+		} else {
+			// topic not found
+			getLogger().info("Topic '" + topic + "' was not found");
+		}
+
+	}
+	
+	// ---------------- HELPER ------------------------------
+	public static BaseRequest getBaseRequest(IClient client, RequestFunction function,
+			AMFDataList params) {
+		BaseRequest cc = new BaseRequest();
+		
+		cc.setId(String.valueOf(client.getClientId()));
+		cc.setClient(client);
+		cc.setSessionId(getParamString(params, PARAM1));
+		
+		return cc;
+	}
+	
+	public static PublishRequest getPublishRequest(IClient client, RequestFunction function,
+			AMFDataList params) {
+		PublishRequest cc = new PublishRequest();
 		
 		cc.setId(String.valueOf(client.getClientId()));
 		cc.setClient(client);
 		cc.setSessionId(getParamString(params, PARAM1));
 		cc.setTopic(getParamString(params, PARAM2));
-		cc.setFrom(getParamString(params, PARAM3));
+		cc.setUserName(getParamString(params, PARAM3));
 		cc.setMessage(getParamString(params, PARAM4));
-		cc.setSendTo(getParamString(params, PARAM5));
+		cc.setDestUserName(getParamString(params, PARAM5));
 		
 		return cc;
 	}
 	
-	private void doPublish(ChatClient cc) {
+	public static SubscribeRequest getSubscribeRequest(IClient client, RequestFunction function,
+			AMFDataList params) {
+		SubscribeRequest cc = new SubscribeRequest();
+		
+		cc.setId(String.valueOf(client.getClientId()));
+		cc.setClient(client);
+		cc.setSessionId(getParamString(params, PARAM1));
+		cc.setTopic(getParamString(params, PARAM2));
+		cc.setUserName(getParamString(params, PARAM3));
+		
+		return cc;
+	}
+	
+	public static TopicStatusRequest getTopicStatusRequest(IClient client, RequestFunction function,
+			AMFDataList params) {
+		TopicStatusRequest cc = new TopicStatusRequest();
+		
+		cc.setId(String.valueOf(client.getClientId()));
+		cc.setClient(client);
+		cc.setSessionId(getParamString(params, PARAM1));
+		cc.setTopic(getParamString(params, PARAM2));
+		cc.setUserName(getParamString(params, PARAM3));
+		cc.setDisableTopic(getParamBoolean(params, PARAM4));
+		cc.setMessage(getParamString(params, PARAM5));
+		
+		return cc;
+	}
+	
+	
+	private void doPublish(PublishRequest cc) {
 		String topic = cc.getTopic();
 		
-		Map<String, ChatClient> subscribers = mTopicsMap.get(topic);
+		Topic t = mTopicsMap.get(topic);
 		
-		if (subscribers != null) {
-			// publishing
-			getLogger().info("publishing message to topic '" + topic + "'");
-			for (String clientId : subscribers.keySet()) {
-				//sendResult(client, params, cc.getFrom() + ": " + cc.getMessage());
-				IClient subs = mClientsMap.get(clientId);
-				if (subs != null) {
-					subs.call("onMessage", this, cc.getFrom(), cc.getSendTo(), cc.getTopic(), cc.getMessage() );
+		if (t!=null) {
+		
+			if (!t.isDisabled()) {
+				Map<String, BaseRequest> subscribers = t.getSubscribers();
+				
+				if (subscribers != null) {
+					// publishing
+					getLogger().info("publishing message to topic '" + topic + "'");
+					for (String clientId : subscribers.keySet()) {
+						//sendResult(client, params, cc.getUserName() + ": " + cc.getMessage());
+						IClient subs = mClientsMap.get(clientId);
+						if (subs != null) {
+							subs.call("onMessage", this, cc.getUserName(), cc.getDestUserName(), cc.getTopic(), cc.getMessage() );
+						}
+					}
+				} else {
+					getLogger().info("no subscribers found in topic: " + topic);
 				}
+			} else {
+				getLogger().info("Topic '"+topic+"' is disabled");
 			}
+		
 		} else {
-			getLogger().info("no subscribers found in topic: " + topic);
+			getLogger().info("No topic found: " + topic);
 		}
 	}
 	
-	public void addChatClient(ChatClient cc) {
+	public void addChatClient(SubscribeRequest cc) {
 			String clientId = cc.getId();
 		
 			// add client
 			if (mClientsMap.get(clientId) == null) {
+				getLogger().debug("Add client with id: " +  clientId + " to clienstmap");
 				mClientsMap.put(clientId, cc.getClient());
 			}
 		
 			// find topic
-			Map<String, ChatClient> topicClients = mTopicsMap.get(cc.getTopic());
+			Topic t = mTopicsMap.get(cc.getTopic());
 			
-			if (topicClients != null) {
-				// clients Map found! add this client
+			if (t != null) {
+				// topic found! add this client
 				
-				if (topicClients.get(clientId) == null) {
+				if (t.addSubscriber(clientId, cc) == null) {
 					getLogger().info("Add new client: " + cc + " to Topics list: " + cc.getTopic());
-					topicClients.put(clientId, cc);
 				} else {
 					getLogger().info("Client already subsriber to topic: " + cc.getTopic());
 				}
 			} else {
 				// topic Not Found! create one
-				getLogger().info("Create NEW clients Map for topic " + cc.getTopic() + " and Add new client: " + cc.getFrom());
-				topicClients = new Hashtable<String, ChatClient>();
-				topicClients.put(clientId, cc);
+				getLogger().info("Create NEW TOPIC " + cc.getTopic() + " and Add new client: " + cc.getUserName());
 				
-				mTopicsMap.put(cc.getTopic(), topicClients);
+				t = new Topic(cc.getTopic());
+				t.addSubscriber(clientId, cc);
+				
+				mTopicsMap.put(cc.getTopic(), t);
 			}
 			
-			// add chattopic 
+			// add chat topic 
 			Map<String, String> topicList = mClientsTopics.get(clientId);
 			if (topicList == null) {
 				topicList  = new Hashtable<String, String>();
 				topicList.put(cc.getTopic(), clientId);
 				
-				getLogger().info("About to add NEW topic list: " + cc.getTopic() + "  to client: " + cc.getFrom());
+				getLogger().info("About to add NEW topic list: " + cc.getTopic() + "  to client: " + cc.getUserName());
 				mClientsTopics.put(clientId, topicList);
 			} else {
 				
 				if (topicList.get(cc.getTopic()) == null) {
-					getLogger().info("About to add topic "+ cc.getTopic() +" to " + cc.getFrom());
+					getLogger().info("About to add topic "+ cc.getTopic() +" to " + cc.getUserName());
 					topicList.put(cc.getTopic(), clientId);
 				} else {
-					getLogger().info("Topic: " + cc.getTopic() +" already subscribed by " + cc.getFrom());
+					getLogger().info("Topic: " + cc.getTopic() +" already subscribed by " + cc.getUserName());
 				}
 			}
 			
 			// add client user mapping
 			
-			if (mClientsUsers.get(cc.getFrom()) == null) {
-				getLogger().info("About to add user: " + cc.getFrom() + " to clientuser list");
-				mClientsUsers.put(cc.getFrom(), cc.getClient());
+			if (mClientsUsers.get(cc.getUserName()) == null) {
+				getLogger().info("About to add user: " + cc.getUserName() + " to clientuser list");
+				mClientsUsers.put(cc.getUserName(), cc.getClient());
 			}
 	}
 	
-	public void removeChatClient(ChatClient cc) {
+	public void removeChatClient(SubscribeRequest cc) {
 		
 		// find topic
-		Map<String, ChatClient> topicSubscribers = mTopicsMap.get(cc.getTopic());
+		Topic t = mTopicsMap.get(cc.getTopic());
 		
-		if (topicSubscribers != null) {
-			// clients Map found! add this client
+		if (t != null) {
+			// found! remove this client
 			getLogger().info("Removing client: " + cc + " from Topic: " + cc.getTopic());
-			topicSubscribers.remove(cc.getId());
+			t.removeSubscriber(cc.getId());
 		} else {
 			// topic Not Found!
 			getLogger().info("Topic '" + cc.getTopic() + "' was not found");
 		}
 		
 		// check empty maps
-		if (topicSubscribers.size() == 0) {
+		if (t.getSubscribers().size() == 0) {
+			getLogger().info("Removing empty topic: " + t.getName());
 			// remove it from topicList
 			mTopicsMap.remove(cc.getTopic());
 		}
@@ -212,8 +303,12 @@ public class Chat extends ModuleBase implements IModuleCallResult {
 		
 		if (subscribedTopics != null) {
 			for (String topics : subscribedTopics.keySet()) {
-				Map<String, ChatClient> allTopicSubs = mTopicsMap.get(topics);
-				allTopicSubs.remove(cid);
+				Topic t = mTopicsMap.get(topics);
+				if (t != null) {
+					t.removeSubscriber(cid);
+				} else {
+					getLogger().error("unsubscribeFromAll: this block should be unreachable!!");
+				}
 			}
 		} else {
 			getLogger().debug("Clients subscribe to nothing");

@@ -11,7 +11,15 @@
 				}
 				
 				public function sendChat():void {
-					cp.sendChatRequest("hendra");
+					cp.sendChatRequest(chatName.text);
+				}
+				
+				public function disableTopic():void {
+					cp.disableTopic("session1.public", "$flippy:sys$mendisable room ini");
+				}
+				
+				public function enableTopic():void {
+					cp.enableTopic("session1.public", "$flippy:sys$mengenable room ini");
 				}
 			]]>
 		</mx:Script>
@@ -21,7 +29,13 @@
 	</mx:VBox>
 	
 	<flippy:Whiteboard/>
-	<mx:Button click="sendChat()"/>
+	<mx:HBox>
+		<mx:Button label="chat to" click="sendChat()"/>
+		<mx:TextInput id="chatName" text="flippy"/>
+	</mx:HBox>
+	<mx:Button label="disable public" click="disableTopic()"/>
+	<mx:Button label="enable public" click="enableTopic()"/>
 	<flippy:ChatPanel id="cp" sessionId="session1" from="{loginInfo.userName}" serverURL="rtmp://localhost:1935/chat"/>
+	
 	
 </mx:VBox>
