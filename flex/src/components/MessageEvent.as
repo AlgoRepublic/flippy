@@ -6,7 +6,7 @@ package components
 		
 		public static const MESSAGE_RECEIVED:String = "message_received";
 		public static const CHAT_REQUEST:String = "chat_request";
-		
+		public static const CALL_RESULT:String = "call_result";
 		
 		public var sessionId:String;
 		public var from:String;
@@ -25,7 +25,7 @@ package components
 		}
 		
 		override public function clone():Event {
-			return new MessageEvent(type, from, sessionId, sendTo, topic, message, bubbles, cancelable);
+			return new MessageEvent(type, sessionId, from, sendTo, topic, message, bubbles, cancelable);
 		}
 	}
 }

@@ -31,10 +31,10 @@
 			}
 			
 			private function initChatManager():void {
-				chatManager = new Chat("session1",from,serverURL);
+				chatManager = new Chat(sessionId,from,serverURL,sessionId+".public");
 				// create new public chat for this user
 				chatManager.addEventListener(MessageEvent.MESSAGE_RECEIVED, onMessage);
-//				chatManager.addEventListener(MessageEvent.CHAT_REQUEST, onChatRequest);
+				chatManager.addEventListener(CallResultEvent.RESULT_RECEIVED, onCallResult);
 				// subscribe and give the topic to the first chat box
 				// add required event handlers to communicate between chatpanel and chatbox
 			}
@@ -44,8 +44,7 @@
 				
 				boxList = new Array();
 				
-				chatManager.subscribe(chatManager.sessionId+".public");
-				addChatBox(chatManager.from, "Public Chat", chatManager.sessionId+".public", null, true);
+				addChatBox(chatManager.from, "Public Chat", chatManager.defaultTopic, null, true);
 				
 				tabBar.addEventListener(SuperTabEvent.TAB_CLOSE, onTabClose);
 				closePolicy = SuperTab.CLOSE_ALWAYS;
@@ -78,9 +77,6 @@
 				return curNum;
 			}
 			
-			public function onTabClose(event:flexlib.events.SuperTabEvent):void {
-			}
-			
 			public function createChatBox(chatManager:Chat, sendTo:String, topic:String):ChatBox {
 				var cBox:ChatBox = new ChatBox();
 				cBox.chatManager = chatManager;
@@ -105,18 +101,35 @@
 				
 				boxList[topic] = cb;
 				
-				var childIdx:int = this.numChildren;
+				var childIdx:int = this.numChildren + 1;
 				
 				if (senderBox) {
 					childIdx = addTab(cb, sendTo);
 				} else {
 					childIdx = addTab(cb, from);
 				}
+				
+				this.selectedIndex = childIdx - 1 ;
+				
+				trace("Creating chatbox with topic: " + topic + "; tabIdx: " + childIdx);
+			}
+			
+			public function onTabClose(event:flexlib.events.SuperTabEvent):void {
+				removeChatBox(this.getTabAt(event.tabIndex).label);
 			}
 			
 			public function removeChatBox(topic:String):void {
-				boxList[topic] = null;
-				trace("chat box for topic: " + topic + " was removed eveal("+boxList[topic]+")");
+				
+				trace("Removing chatbox with label: " + topic);
+				
+				if (topic != null) {
+					chatManager.unsubscribe(topic);
+					
+					boxList[topic] = null;
+					trace("chat box for topic: " + topic + " was removed eveal("+boxList[topic]+")");
+				} else {
+					trace("chat box with label " + topic + " does not exists");
+				}
 			}
 			
 			// ---------------- CLient RPC
@@ -156,6 +169,14 @@
 					// ask?
 					// create
 					addChatBox(event.from, event.sendTo, event.topic, event.message, false);
+				}
+			}
+			
+			public function onCallResult(event:CallResultEvent):void {
+				var chatBox:ChatBox = boxList[event.topic];
+				
+				if (chatBox != null) {
+					chatBox.onCallResult(event);
 				}
 			}
 			

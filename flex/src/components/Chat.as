@@ -11,21 +11,31 @@ package components
 		public var serverURL:String;
 		public var sessionId:String;
 		public var from:String;
+		public var defaultTopic:String;
 		
 		private var nc:NetConnection;
 		private var res:Responder = new Responder(onResult);
 				
+		public static const CALL_PUBLISH:String = "publish";
+		public static const CALL_SUBSCRIBE:String = "subscribe";
+		public static const CALL_UNSUBSCRIBE:String = "unSubscribe";
+		public static const CALL_SENDCHATREQ:String = "sendChatRequest";
+		public static const CALL_DISABLE_TOPIC:String = "disableTopic";
 		
-		public function Chat(sessionId:String, from:String, serverURL:String)
+		public function Chat(sessionId:String, from:String, serverURL:String, defaultTopic:String)
 		{
 			this.serverURL = serverURL;
 			this.sessionId = sessionId;
 			this.from = from;
+			this.defaultTopic = defaultTopic;
 			
 			initConnection();
 		}
 		
 		private function initConnection():void {
+			
+			trace("Initializing connection to: " + serverURL);
+			
 			if (nc != null && !nc.connected) {
 				nc.close();
 				nc = null
@@ -36,32 +46,61 @@ package components
 			
 			nc.client = this;
 			nc.connect(serverURL);
+			
+			// subscribe to default topic
+			// subscribe(sessionId+".public");
 		}
 
 		// --------------- client RPC
 		public function sendChatRequest(sendTo:String, topic:String, message:String):void {
 			
 			if (nc != null && nc.connected) {
-				nc.call("sendChatRequest", res, sessionId, topic, from, message, sendTo);
+				nc.call(CALL_SENDCHATREQ, res, sessionId, topic, from, message, sendTo);
 			} else {
-				trace("NC error on sendingchatrequest");
+				trace("NC error on sendingchatrequest to: " + sendTo);
 			}
 		}
 		
 		public function publish(topic:String, sendTo:String, message:String):void {
-			nc.call("publish", res, sessionId, topic, from, message, sendTo);
+			if (nc != null && nc.connected) {
+				nc.call(CALL_PUBLISH, res, sessionId, topic, from, message, sendTo);
+			} else {
+				trace("NC error on publish to: " + topic);
+			}
 		}
 		
 		public function subscribe(topic:String):void {
-			nc.call("subscribe", res, sessionId, topic, from);
+			if (nc != null && nc.connected) {
+				trace("subscribing to: " + topic);
+				nc.call(CALL_SUBSCRIBE, res, sessionId, topic, from);
+			} else {
+				trace("NC error on subscribe to: " + topic);
+			}
+		}
+		
+		public function unsubscribe(topic:String):void {
+			if (nc != null && nc.connected) {
+				trace("unsubscribing to: " + topic);
+				nc.call(CALL_UNSUBSCRIBE, res, sessionId, topic, from);
+			} else {
+				trace("NC error on unsubscribe to: " + topic);
+			}
 		}
 		
 		public function disableTopic(topic:String, message:String):void {
-			nc.call("disableTopic", res, sessionId, topic, from, true, message);
+			if (nc != null && nc.connected) {
+				nc.call(CALL_DISABLE_TOPIC, res, sessionId, topic, from, true, message);
+			} else {
+				trace("NC error on disable topic");
+			}
 		}
 		
 		public function enableTopic(topic:String, message:String):void {
-			nc.call("disableTopic", res, sessionId, topic, from, false, message);
+			if (nc != null && nc.connected) {
+				nc.call(CALL_DISABLE_TOPIC, res, sessionId, topic, from, false, message);
+			} else {
+				trace("NC error on enable topic");
+			}
 		}
 		
 		public function onStatus(event:NetStatusEvent):void {
@@ -69,14 +108,16 @@ package components
 				// subscribe
 				//subscribe(defaultTopic);
 				trace("Connect success");
+				
+				if (defaultTopic != null) {
+					subscribe(defaultTopic);
+				}
+				
 			} else {
 				trace("Connect failed: " + event.info.code);
 			}
 		}
 		
-		public function onResult(ret:Object):void {
-			trace("got result from server: " + String(ret));
-		}
 		
 		// ------------- SERVER CALL
 		public function onMessage (from:String, sendTo:String, topic:String, msg:String):String {
@@ -96,5 +137,30 @@ package components
 			return msg + " chat request successfully received";
 		}
 		
+		public function onResult(ret:Object):void {
+			trace("got result from server: " + String(ret));
+			if (hasEventListener(CallResultEvent.RESULT_RECEIVED)) {
+				var res:Array = splitResultString(String(ret));
+				trace("result: " + res);
+				var resEvt:CallResultEvent = new CallResultEvent(CallResultEvent.RESULT_RECEIVED, sessionId, res["method"], from, res["code"], res["topic"], res["message"]);
+				dispatchEvent(resEvt);
+			}
+		}
+		
+		
+		// --------------- Helper
+		public function splitResultString(str:String):Array {
+			// errorcode:topic:method:errormessage
+			var tokens:Array = str.split(":");
+			if (tokens.length == 4) {
+				tokens["code"] = tokens[0];
+				tokens["topic"] = tokens[1];
+				tokens["method"] = tokens[2];
+				tokens["message"] = tokens[3];
+			} else {
+				trace("invalid result string");
+			}
+			return tokens;
+		}
 	}
 }
