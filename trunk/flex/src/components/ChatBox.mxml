@@ -22,10 +22,7 @@
 				if (defaultMessage != null) {
 					addMessage(defaultFrom, defaultMessage);
 				}
-			}
-			
-			private function cleanUp():void {
-				chatPanel.removeChatBox(this.topic);
+				
 			}
 			
 			public function keyEventHandler(event:KeyboardEvent):void {
@@ -80,6 +77,14 @@
 				callLater(
 					scrollToEnd
 				);
+			}
+			
+			public function onCallResult(event:CallResultEvent):void {
+				if (event.method == Chat.CALL_SENDCHATREQ) {
+					if (event.code == 500) {
+						addMessage("", "$flippy:sys$User tidak ada");
+					}
+				}
 			}
 			
 			private function scrollToEnd():void {

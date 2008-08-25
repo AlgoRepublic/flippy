@@ -12,6 +12,14 @@ import com.wowza.wms.request.RequestFunction;
 
 public class Chat extends ModuleBase implements IModuleCallResult {
 
+	public static final int RESULT_OK = 200;
+	public static final int RESULT_NOK = 500;
+	
+	public static String CALL_PUBLISH = "publish";
+	public static String CALL_SUBSCRIBE = "subscribe";
+	public static String CALL_SENDCHATREQ = "sendChatRequest";
+	public static String CALL_DISABLE_TOPIC = "disableTopic";
+	
 	/**
 	 * List of connected client identified by clientId
 	 */
@@ -91,11 +99,11 @@ public class Chat extends ModuleBase implements IModuleCallResult {
 			// publish to both
 			publish(client, function, params);
 			
-			sendResult(client, params, "success sending chat request to: " + cc.getMessage() + " from: " + cc.getUserName());
+			sendResult(client, params, composeResult(RESULT_OK, cc.getTopic(), CALL_SENDCHATREQ, "success sending chat request to: " + cc.getMessage() + " from: " + cc.getUserName()));
 		} else {
 			
 			getLogger().info("Failed calling onChatRequest: no client with name" + cc.getDestUserName() + " was found");
-			sendResult(client, params, "client with name " + cc.getDestUserName() + " does not exists");
+			sendResult(client, params, composeResult(RESULT_NOK, cc.getTopic(), CALL_SENDCHATREQ, "client with name " + cc.getDestUserName() + " does not exists"));
 		}
 	}
 	
@@ -184,6 +192,10 @@ public class Chat extends ModuleBase implements IModuleCallResult {
 		return cc;
 	}
 	
+	
+	public static String composeResult(int code, String topic, String method, String message) {
+		return code + ":" + topic + ":" + method + ":" + message;
+	}
 	
 	private void doPublish(PublishRequest cc) {
 		String topic = cc.getTopic();
@@ -282,17 +294,19 @@ public class Chat extends ModuleBase implements IModuleCallResult {
 			// found! remove this client
 			getLogger().info("Removing client: " + cc + " from Topic: " + cc.getTopic());
 			t.removeSubscriber(cc.getId());
+			
+			// check empty maps
+			Map<String, BaseRequest> subs = t.getSubscribers();
+			if (subs.size() == 0) {
+				getLogger().info("Removing empty topic: " + t.getName());
+				// remove it from topicList
+				mTopicsMap.remove(cc.getTopic());
+			}
 		} else {
 			// topic Not Found!
 			getLogger().info("Topic '" + cc.getTopic() + "' was not found");
 		}
 		
-		// check empty maps
-		if (t.getSubscribers().size() == 0) {
-			getLogger().info("Removing empty topic: " + t.getName());
-			// remove it from topicList
-			mTopicsMap.remove(cc.getTopic());
-		}
 	}
 	
 	public void unsubscribeFromAll(IClient client) {
@@ -305,6 +319,7 @@ public class Chat extends ModuleBase implements IModuleCallResult {
 			for (String topics : subscribedTopics.keySet()) {
 				Topic t = mTopicsMap.get(topics);
 				if (t != null) {
+					getLogger().info("removing: " + cid);
 					t.removeSubscriber(cid);
 				} else {
 					getLogger().error("unsubscribeFromAll: this block should be unreachable!!");
