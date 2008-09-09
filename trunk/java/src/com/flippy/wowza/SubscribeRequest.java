@@ -1,5 +1,6 @@
 package com.flippy.wowza;
 
+import com.flippy.wowza.BaseRequest;
 import com.wowza.wms.client.IClient;
 
 public class SubscribeRequest extends BaseRequest {

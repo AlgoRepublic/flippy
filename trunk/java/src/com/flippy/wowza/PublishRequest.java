@@ -1,5 +1,6 @@
 package com.flippy.wowza;
 
+import com.flippy.wowza.SubscribeRequest;
 import com.wowza.wms.client.IClient;
 
 public class PublishRequest extends SubscribeRequest {

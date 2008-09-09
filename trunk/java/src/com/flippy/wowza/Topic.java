@@ -3,6 +3,8 @@ package com.flippy.wowza;
 import java.util.Hashtable;
 import java.util.Map;
 
+import com.flippy.wowza.BaseRequest;
+
 public class Topic {
 	private String name;
 	private Map<String, BaseRequest> subscribers = new Hashtable<String, BaseRequest>();

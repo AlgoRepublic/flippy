@@ -1,16 +1,24 @@
 package com.flippy.wowza;
 
+import java.util.Date;
 import java.util.Hashtable;
 import java.util.Map;
 
+import com.flippy.service.ChatLogService;
+import com.flippy.service.ServiceManager;
+import com.flippy.wowza.BaseRequest;
+import com.flippy.wowza.FlippyModuleBase;
+import com.flippy.wowza.PublishRequest;
+import com.flippy.wowza.SubscribeRequest;
+import com.flippy.wowza.Topic;
+import com.flippy.wowza.TopicStatusRequest;
 import com.wowza.wms.amf.AMFDataList;
 import com.wowza.wms.application.IApplicationInstance;
 import com.wowza.wms.client.IClient;
 import com.wowza.wms.module.IModuleCallResult;
-import com.wowza.wms.module.ModuleBase;
 import com.wowza.wms.request.RequestFunction;
 
-public class Chat extends ModuleBase implements IModuleCallResult {
+public class Chat extends FlippyModuleBase implements IModuleCallResult {
 
 	public static final int RESULT_OK = 200;
 	public static final int RESULT_NOK = 500;
@@ -210,6 +218,23 @@ public class Chat extends ModuleBase implements IModuleCallResult {
 				if (subscribers != null) {
 					// publishing
 					getLogger().info("publishing message to topic '" + topic + "'");
+					
+					// log:
+					final String lUserName = cc.getUserName();
+					final String lmsg = cc.getMessage();
+					final String ldestUname = cc.getDestUserName();
+					final String lSessionId = cc.getSessionId();
+					final String lTopic = cc.getTopic();
+					final Date ldate = new Date();
+					
+					ServiceManager.getInstance().execute(new Runnable() {
+					
+						@Override
+						public void run() {
+							ChatLogService.writeLog(ldestUname, lmsg, lUserName, lSessionId, ldate, lTopic);
+						}
+					});
+					
 					for (String clientId : subscribers.keySet()) {
 						//sendResult(client, params, cc.getUserName() + ": " + cc.getMessage());
 						IClient subs = mClientsMap.get(clientId);
@@ -336,6 +361,7 @@ public class Chat extends ModuleBase implements IModuleCallResult {
 	
 	// ---------------- LIFE CYCLE --------------------------
 	public void onAppStart(IApplicationInstance appInstance) {
+		super.onAppStart(appInstance);
 		String fullname = appInstance.getApplication().getName() + "/"
 				+ appInstance.getName();
 		getLogger().info("onAppStart: " + fullname);

@@ -2,12 +2,14 @@
 <project name="FlippyChat" default="all" basedir=".">
 	
 	<property name="wowza.lib.dir" value="C:/Program Files/Wowza Media Systems/Wowza Media Server Pro 1.5.0/lib"/>
+	<property name="lib.dir" value="lib"/>
 	<property name="jar.filename" value="FlippyChat.jar"/>
 	<property name="core.build.dir" value="bin"/>
 	<property name="src" value="src"/>
 
 	<path id="classpath">
 		<fileset dir="${wowza.lib.dir}" includes="*.jar"></fileset>
+		<fileset dir="${lib.dir}" includes="*.jar"/>
 	</path>
 
 	<target name="clean">
@@ -20,12 +22,18 @@
 		    <src path="${src}"/>
 		    <classpath refid="classpath"/>
 		</javac>
+		<copy todir="${core.build.dir}" verbose="true">
+			<fileset dir="${src}" includes="*.xml"></fileset>
+		</copy>
 	</target>
 	
 	<target name="jar">
 		<jar jarfile="${wowza.lib.dir}/${jar.filename}">
 			<fileset dir="${core.build.dir}"/>
 		</jar>
+		<copy todir="${wowza.lib.dir}" verbose="true">
+			<fileset dir="${lib.dir}" includes="*.jar"/>
+		</copy>
 	</target>
 	
 	<target name="all" depends="clean, compile, jar">
