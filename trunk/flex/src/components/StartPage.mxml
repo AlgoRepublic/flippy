@@ -30,14 +30,14 @@
 			<mx:Label text="{loginInfo.rememberMe}"/>
 		</mx:Panel>
 		<mx:Panel width="80%" height="100%">
-			<flippy:Whiteboard/>
+			<flippy:Whiteboard width="100%" serverUrl="rtmp://localhost:1935/Flippy"/>
 			<mx:HBox>
 				<mx:Button label="chat to" click="sendChat()"/>
 				<mx:TextInput id="chatName" text="flippy"/>
 			</mx:HBox>
 			<mx:Button label="disable public" click="disableTopic()"/>
 			<mx:Button label="enable public" click="enableTopic()"/>
-			<flippy:ChatPanel id="cp" sessionId="session1" from="{loginInfo.userName}" serverURL="rtmp://localhost:1935/chat"/>
+			<flippy:ChatPanel id="cp" sessionId="session1" from="{loginInfo.userName}" serverURL="rtmp://localhost:1935/Flippy"/>
 		</mx:Panel>	
 	</mx:HDividedBox>
 	

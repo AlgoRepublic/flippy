@@ -2,8 +2,8 @@ package components
 {
 	import flash.events.MouseEvent;
 	import flash.geom.Rectangle;
+	import flash.net.SharedObject;
 	
-	import mx.collections.ArrayCollection;
 	import mx.containers.Canvas;
 	
 	/**
@@ -21,7 +21,7 @@ package components
 	 */
 	public class Paper extends Canvas 
 	{
-		private var drawables:ArrayCollection = new ArrayCollection();
+		private var dso:SharedObject;
 		private var down:Boolean = false;
 		private var rectangle:Rectangle = null;
 		private var activeToolId:String = "rectangleTool";
@@ -31,6 +31,7 @@ package components
 		private var fillColorVal:uint = 0;
 		private var opaqueVal:Boolean = true;
 		private var fillAlphaVal:Number = 1;
+		private var seqNumber:int = 1;
 		//private var timer:Timer = new Timer(500);
 		// TODO uudashr: add different cursor based on the tools when entering the draw area
 		
@@ -45,6 +46,11 @@ package components
 			addEventListener(MouseEvent.ROLL_OUT, rollOutHandler);
 			addEventListener(MouseEvent.ROLL_OVER, rollOverHandler);
 			//timer.addEventListener(TimerEvent.TIMER, drawPenLine);
+		}
+		
+		public function set drawablesSharedObject(dso:SharedObject):void
+		{
+			this.dso = dso;
 		}
 		
 		private function mouseOutHandler(event:MouseEvent):void
@@ -246,39 +252,54 @@ package components
 		{
 			if (activeDrawObject != null)
 			{
-				drawables.addItem(activeDrawObject);
-				repaintDrawables();
+				if (dso.data["objects"] == undefined) 
+				{
+					dso.data["objects"] = new Array();
+				}
+				dso.data["objects"].push(activeDrawObject);
 				activeDrawObject = null;
+				dso.setDirty("objects");
 			}
 		}
 		
 		public function clear():void
 		{
-			drawables.removeAll();
-			repaintDrawables();
+			/*
+			for (var i:int = 0; i < seqNumber; i++)
+			{
+				delete dso.data[i];
+			}
+			*/
+			if (!(dso.data["objects"] == undefined) && dso.data["objects"] is Array) {
+				dso.data["objects"].splice(0, dso.data["objects"].length);
+				dso.setDirty("objects");
+			} else {
+				trace("Not clearing objects");
+			}
+			
+			//repaintDrawables();
 		}
 		
-		private function repaintDrawables():void
+		public function repaintDrawables():void
 		{
 			graphics.clear();
-			
-			var arr:Array = drawables.source;
-			for (var i:int = 0; i < arr.length; i++)
+			if (dso == null)
 			{
-				var item:Object = arr[i];
-				/*
-				graphics.lineStyle(item.strokeThickness, item.strokeColor);
-				graphics.drawRect(item.x, item.y, item.width, item.height);
-				*/
-				drawObject(arr[i]);
+				return;
+			}
+			/*
+			for (var i:int = 0; i < drawables.length; i++)
+			{
+				var item:Object = drawables[i];
+				drawObject(drawables[i]);
+			}
+			*/
+			for (var d:Object in dso.data["objects"])
+			{
+				drawObject(dso.data["objects"][d]);
 			}
 			if (activeDrawObject != null)
 			{
-				/*
-				graphics.lineStyle(activeDrawObject.strokeThickness, activeDrawObject.strokeColor);
-				graphics.drawRect(activeDrawObject.x, activeDrawObject.y, 
-						activeDrawObject.width, activeDrawObject.height);
-						*/
 				drawObject(activeDrawObject);
 			}
 		}
@@ -288,12 +309,16 @@ package components
 			if (drawable.type == "rectangle")
 			{
 				graphics.lineStyle(drawable.strokeThickness, drawable.strokeColor);
+				graphics.moveTo(drawable.x, drawable.y);
 				if (!drawable.opaque)
 				{
 					graphics.beginFill(drawable.fillColor, drawable.fillAlpha);
 				}
 				graphics.drawRect(drawable.x, drawable.y, drawable.width, drawable.height);
-				graphics.endFill();
+				if (!drawable.opaque)
+				{
+					graphics.endFill();
+				}
 			}
 			else if (drawable.type == "line")
 			{
@@ -304,20 +329,31 @@ package components
 			else if (drawable.type == "oval")
 			{
 				graphics.lineStyle(drawable.strokeThickness, drawable.strokeColor);
+				graphics.moveTo(drawable.x, drawable.y);
 				if (!drawable.opaque)
 				{
 					graphics.beginFill(drawable.fillColor, drawable.fillAlpha);
 				}
 				graphics.drawEllipse(drawable.x, drawable.y, drawable.width, drawable.height);
-				graphics.endFill();
+				if (!drawable.opaque)
+				{
+					graphics.endFill();
+				}
 			}
 			else if (drawable.type == "pen")
 			{
 				graphics.lineStyle(drawable.strokeThickness, drawable.strokeColor);
 				graphics.moveTo(drawable.path[0].x, drawable.path[0].y);
+				/*
 				for (var i:int = 1; i < drawable.path.length; i++)
 				{
 					var obj:Object = drawable.path[i];
+					graphics.lineTo(obj.x, obj.y);
+				}
+				*/
+				for (var p:Object in drawable.path)
+				{
+					var obj:Object = drawable.path[p];
 					graphics.lineTo(obj.x, obj.y);
 				}
 			}

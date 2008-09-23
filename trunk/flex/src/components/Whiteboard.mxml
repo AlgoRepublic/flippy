@@ -1,16 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:paper="components.*" width="546" height="334" creationComplete="init()">
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:paper="components.*" creationComplete="init()">
 	<mx:Script>
 		<![CDATA[
+			import mx.controls.Image;
+			import mx.controls.NumericStepper;
+			import mx.events.ListEvent;
+			import mx.controls.ComboBox;
 			import mx.events.NumericStepperEvent;
 			import mx.events.ColorPickerEvent;
 			import mx.core.UIComponent;
 			import mx.collections.ArrayCollection;
 			import mx.controls.Button;
 			private var tools:ArrayCollection;
+			private var thicknessOptions:Array = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+			
+			// shared object
+			private var nc:NetConnection = null;
+			private var mySo:SharedObject = null;
+			private var rtmpUrl:String = "rtmp://localhost/SOSample";
+			
+			public function set serverUrl(url:String):void
+			{
+				rtmpUrl = url;
+			}
+			
+			public function get serverUrl():String
+			{
+				return rtmpUrl;
+			}
+			
+			public function connect():void
+			{
+				nc = new NetConnection();
+				nc.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
+				
+				trace("Connecting to server using '" + rtmpUrl + "' ...");
+				nc.connect(rtmpUrl);
+				
+				trace("Getting remote object from " + nc.uri);
+				mySo = SharedObject.getRemote("whiteboard", nc.uri);
+				mySo.addEventListener(SyncEvent.SYNC, soSyncHandler);
+			}
+			
+			public function disconnect():void
+			{
+				if (mySo != null)
+				{
+					mySo.close();
+				}
+				if (nc != null)
+				{
+					nc.close();
+				}
+			}
+			
+			private function netStatusHandler(event:NetStatusEvent):void
+			{
+				trace("nc:" + event.info.code + " - " + event.info.description);
+				if (event.info.code == "NetConnection.Connect.Success")
+				{
+					trace("Connected");
+					trace("Create connection to shared object...");
+					mySo.connect(nc);
+					drawPaper.drawablesSharedObject = mySo;
+				}
+			}
+			
+			private function soSyncHandler(event:SyncEvent):void
+			{
+				trace("Sync Event");
+				var changeList:Array = event.changeList;
+				for (var i:int = 0; i < changeList.length; i++)
+				{
+					var info:Object = changeList[i];
+					trace("changed object [" + i + "]:name='" + info.name + "', code='" + info.code + "'"); 
+				}
+				
+				for (var p:Object in mySo.data)
+				{
+					trace("slotName='" + p + "', slotValue='" + mySo.data[p] + "'");
+				}
+				drawPaper.repaintDrawables();
+			}
+			
 			
 			private function init():void {
 				tools = new ArrayCollection([rectangleTool, ovalTool, lineTool, penTool]);
+				connect();
 			}
 			
 			private function selectATool(tool:Button):void {
@@ -42,36 +118,46 @@
 			private function strokeThicknessChanged(event:NumericStepperEvent):void
 			{
 				drawPaper.strokeThickness = event.value;
+				
 			}
 		]]>
 	</mx:Script>
-	<mx:HBox width="100%" height="100%">
 	
-		<mx:VBox>
-			<mx:Button label="Rectangle" width="100%" id="rectangleTool" selected="true" click="selectATool(rectangleTool)"/>
-			<mx:Button label="Oval" width="100%" id="ovalTool" click="selectATool(ovalTool)"/>
-			<mx:Button label="Line" width="100%" id="lineTool" click="selectATool(lineTool)"/>
-			<mx:Button label="Pen" width="100%" id="penTool" click="selectATool(penTool)"/>
-			<mx:Button label="Clear" width="100%" id="clearTool" click="drawPaper.clear()"/>
-			<mx:Form paddingLeft="0" paddingTop="0" paddingRight="0" width="100%">
-				<mx:FormItem label="Stroke" width="100%">
-					<mx:ColorPicker change="strokeColorChanged(event)"/>
-				</mx:FormItem>
-				<mx:FormItem label="Fill" width="100%">
-					<mx:HBox>
-						<mx:ColorPicker change="fillColorChanged(event)"/>
-						<mx:CheckBox id="fillColorCheck" change="drawPaper.opaque = !fillColorCheck.selected"/>
-					</mx:HBox>
-				</mx:FormItem>
-				<mx:FormItem label="Alpha">
-					<mx:NumericStepper width="53" value="100" stepSize="1" minimum="0" maximum="100" change="fillAlphaChanged(event)"/>
-				</mx:FormItem>
-				<mx:FormItem label="Tickness">
-					<mx:NumericStepper width="53" value="1" stepSize="1" change="strokeThicknessChanged(event)"/>
-				</mx:FormItem>
-			</mx:Form>
-		</mx:VBox>
+	<mx:Panel width="142" height="100%" layout="vertical" title="Tools">
+		<mx:Button width="100%" id="rectangleTool" selected="true" click="selectATool(rectangleTool)" icon="@Embed(source='../assets/rectangle tool.svg')" height="29" label="Rectange" textAlign="left"/>
+		<mx:Button width="100%" id="ovalTool" click="selectATool(ovalTool)" height="29" icon="@Embed(source='../assets/oval tool.svg')" label="Oval" textAlign="left"/>
+		<mx:Button width="100%" id="lineTool" click="selectATool(lineTool)" height="29" icon="@Embed(source='../assets/line tool.svg')" label="Line" textAlign="left"/>
+		<mx:Button width="100%" id="penTool" click="selectATool(penTool)" height="29" icon="@Embed(source='../assets/pen tool.svg')" label="Pen" textAlign="left"/>
+		<mx:Button width="100%" id="clearTool" click="drawPaper.clear()" height="29" icon="@Embed(source='../assets/eraser tool.svg')" label="Erase All" textAlign="left"/>
+	</mx:Panel>
+	
+	<mx:VBox width="100%" height="100%" borderColor="#B2AFAF" borderThickness="1" borderStyle="solid">
+		<mx:ApplicationControlBar width="100%">
+			<mx:HBox>
+				<mx:Label text="Stroke"/>
+				<mx:ColorPicker change="strokeColorChanged(event)"/>
+			</mx:HBox>
+			<mx:Spacer/>
+			<mx:HBox>
+				<mx:Label text="Fill"/>
+				<mx:ColorPicker change="fillColorChanged(event)"/>
+				<mx:CheckBox id="fillColorCheck" change="drawPaper.opaque = !fillColorCheck.selected"/>
+			</mx:HBox>
+			<mx:Spacer/>
+			<mx:HBox>
+				<mx:Label text="Alpha"/>
+				<mx:NumericStepper width="53" value="100" stepSize="1" minimum="0" maximum="100" change="fillAlphaChanged(event)"/>
+			</mx:HBox>
+			<mx:Spacer/>
+			<mx:HBox>
+				<mx:Label text="Thickness"/>
+				<mx:NumericStepper width="53" value="1" stepSize="1" minimum="1" maximum="10" change="strokeThicknessChanged(event)"/>
+			</mx:HBox>
+		</mx:ApplicationControlBar>
+		<mx:HBox width="100%" height="100%" horizontalScrollPolicy="auto" verticalScrollPolicy="auto">
+			<paper:Paper id="drawPaper" width="100%" height="100%" focusEnabled="true">
+			</paper:Paper>
+		</mx:HBox>
+	</mx:VBox>
 		
-		<paper:Paper id="drawPaper" focusEnabled="true" borderStyle="solid" height="100%" width="100%"/>
-	</mx:HBox>
-</mx:Canvas>
+</mx:HBox>
