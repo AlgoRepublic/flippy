@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:fl="components.*" layout="vertical" verticalAlign="middle">
+	<mx:Script>
+		<![CDATA[
+			import components.LoginEvent;
+			
+			public function doAuthorized(event:LoginEvent):void {
+				startPage.loginInfo = event.loginInfo;
+				vs.selectedIndex = 1;
+				
+			}
+		]]>
+	</mx:Script>
+	<mx:ViewStack id="vs" width="100%" height="100%">
+		<fl:Login id="loginPage" authorized="doAuthorized(event)"/>
+		<fl:StartPage id="startPage"/>
+	</mx:ViewStack>
+</mx:Application>
