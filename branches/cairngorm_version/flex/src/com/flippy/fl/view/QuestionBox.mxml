@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" 
+         paddingLeft="5" paddingRight="5" paddingTop="5" paddingBottom="5" 
+		 creationComplete="init()" >
+	<mx:ApplicationControlBar width="100%" shadowDistance="0.5" dock="true" paddingBottom="0">
+		<mx:Label text="Questions Area"/>
+	</mx:ApplicationControlBar>
+	<mx:VDividedBox width="100%">	
+		<mx:Script>
+			<![CDATA[
+			
+				import com.flippy.fl.model.*;
+				import com.flippy.fl.events.*;
+				import mx.controls.Alert;
+				
+				[Bindable]
+				private var model:FlippyModelLocator = FlippyModelLocator.getInstance();
+				
+				
+				private function init():void {					
+				}
+			
+				private function keyEventHandler(event:KeyboardEvent):void {
+					if (event.keyCode == Keyboard.ENTER) {						
+						sendMessage();
+					}
+				}
+				
+				private function sendMessage():void {
+					model.logger.logMessage("About to dispatch QuestionSubmitEvent", "QuestionBox.mxml");
+					var event:QuestionSubmitEvent = new QuestionSubmitEvent(model.main.sessionId, model.main.userName, txtQuestionInput.text, model.main.role);
+					
+					// clean up
+					callLater(
+						function doLater():void {
+							txtQuestionInput.text = "";
+							txtQuestionInput.htmlText = "";
+						}
+					);
+					
+					event.dispatch();					
+				}
+				
+				private function updateScroll(event:Event):void {
+					var ta:TextArea = TextArea(event.target);
+					ta.verticalScrollPosition = ta.maxVerticalScrollPosition;
+					//ta.invalidateProperties();						
+				}
+			]]>
+		</mx:Script>
+	
+		<mx:TextArea width="100%" height="70%" editable="false" wordWrap="true" id="txaQuestionList" minHeight="50" htmlText="{model.main.questionText}" updateComplete="updateScroll(event)"/>
+		<mx:HBox width="100%" minHeight="50">
+			<mx:TextArea width="100%" height="95%" id="txtQuestionInput" keyDown="keyEventHandler(event)" wordWrap="true"  />
+			<mx:Button label="Send" id="btnQuestionSend" width="60" click="sendMessage()"/>
+		</mx:HBox>
+		
+	</mx:VDividedBox>
+	
+</mx:VBox>
