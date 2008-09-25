@@ -7,7 +7,7 @@ import com.wowza.wms.application.IApplicationInstance;
 import com.wowza.wms.module.ModuleBase;
 
 
-public class FlippyModuleBase extends ModuleBase {
+public abstract class FlippyModuleBase extends ModuleBase {
 	
 	private static ApplicationContext aCtx;
 	

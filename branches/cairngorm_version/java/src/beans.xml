@@ -15,6 +15,14 @@
     <bean id="ChatLogService" class="com.flippy.service.ChatLogDAOImpl">
         <property name="dataSource" ref="dataSource"/>
     </bean>
+    
+	<bean id="QuestionLogService" class="com.flippy.service.QuestionLogDAOImpl">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    
+    <bean id="LoginService" class="com.flippy.service.LoginDAOImpl">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
 
 	
 </beans>

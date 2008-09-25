@@ -1,4 +1,4 @@
-package com.flippy.wowza;
+package com.flippy.wowza.chat;
 
 import java.util.Date;
 import java.util.Hashtable;
@@ -6,12 +6,12 @@ import java.util.Map;
 
 import com.flippy.service.ChatLogService;
 import com.flippy.service.ServiceManager;
-import com.flippy.wowza.BaseRequest;
+import com.flippy.wowza.FlippyBaseRequest;
 import com.flippy.wowza.FlippyModuleBase;
-import com.flippy.wowza.PublishRequest;
-import com.flippy.wowza.SubscribeRequest;
-import com.flippy.wowza.Topic;
-import com.flippy.wowza.TopicStatusRequest;
+import com.flippy.wowza.chat.PublishRequest;
+import com.flippy.wowza.chat.SubscribeRequest;
+import com.flippy.wowza.chat.Topic;
+import com.flippy.wowza.chat.TopicStatusRequest;
 import com.wowza.wms.amf.AMFDataList;
 import com.wowza.wms.application.IApplicationInstance;
 import com.wowza.wms.client.IClient;
@@ -31,23 +31,23 @@ public class Chat extends FlippyModuleBase implements IModuleCallResult {
 	/**
 	 * List of connected client identified by clientId
 	 */
-	private Map<String, IClient> mClientsMap = new Hashtable<String, IClient>();
+	private static Map<String, IClient> mClientsMap = new Hashtable<String, IClient>();
 	
 	/**
 	 * List of connected client identified by userId
 	 */
-	private Map<String, IClient> mClientsUsers = new Hashtable<String, IClient>();
+	private static Map<String, IClient> mClientsUsers = new Hashtable<String, IClient>();
 	
 	/**
 	 * List of topics that a client subscribe to
 	 */
-	private Map<String, Map<String, String>> mClientsTopics = new Hashtable<String, Map<String,String>>();
+	private static Map<String, Map<String, String>> mClientsTopics = new Hashtable<String, Map<String,String>>();
 	
 	/**
 	 * List of currently subscribed topic.
 	 * contains list of clients who subscribed to a topic
 	 */
-	private Map<String, Topic> mTopicsMap = new Hashtable<String, Topic>();
+	private static Map<String, Topic> mTopicsMap = new Hashtable<String, Topic>();
 	
 	// ----------------- CHAT RPC  ------------------------
 	public void publish(IClient client, RequestFunction function,
@@ -146,9 +146,9 @@ public class Chat extends FlippyModuleBase implements IModuleCallResult {
 	}
 	
 	// ---------------- HELPER ------------------------------
-	public static BaseRequest getBaseRequest(IClient client, RequestFunction function,
+	public static FlippyBaseRequest getBaseRequest(IClient client, RequestFunction function,
 			AMFDataList params) {
-		BaseRequest cc = new BaseRequest();
+		FlippyBaseRequest cc = new FlippyBaseRequest();
 		
 		cc.setId(String.valueOf(client.getClientId()));
 		cc.setClient(client);
@@ -213,7 +213,7 @@ public class Chat extends FlippyModuleBase implements IModuleCallResult {
 		if (t!=null) {
 		
 			if (!t.isDisabled()) {
-				Map<String, BaseRequest> subscribers = t.getSubscribers();
+				Map<String, FlippyBaseRequest> subscribers = t.getSubscribers();
 				
 				if (subscribers != null) {
 					// publishing
@@ -321,7 +321,7 @@ public class Chat extends FlippyModuleBase implements IModuleCallResult {
 			t.removeSubscriber(cc.getId());
 			
 			// check empty maps
-			Map<String, BaseRequest> subs = t.getSubscribers();
+			Map<String, FlippyBaseRequest> subs = t.getSubscribers();
 			if (subs.size() == 0) {
 				getLogger().info("Removing empty topic: " + t.getName());
 				// remove it from topicList

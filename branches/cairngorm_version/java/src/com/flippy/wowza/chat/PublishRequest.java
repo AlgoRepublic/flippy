@@ -1,6 +1,6 @@
-package com.flippy.wowza;
+package com.flippy.wowza.chat;
 
-import com.flippy.wowza.SubscribeRequest;
+import com.flippy.wowza.chat.SubscribeRequest;
 import com.wowza.wms.client.IClient;
 
 public class PublishRequest extends SubscribeRequest {

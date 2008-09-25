@@ -1,9 +1,9 @@
-package com.flippy.wowza;
+package com.flippy.wowza.chat;
 
-import com.flippy.wowza.BaseRequest;
+import com.flippy.wowza.FlippyBaseRequest;
 import com.wowza.wms.client.IClient;
 
-public class SubscribeRequest extends BaseRequest {
+public class SubscribeRequest extends FlippyBaseRequest {
 	String topic;
 	String userName;
 	

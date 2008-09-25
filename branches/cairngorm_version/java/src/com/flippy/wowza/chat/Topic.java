@@ -1,13 +1,13 @@
-package com.flippy.wowza;
+package com.flippy.wowza.chat;
 
 import java.util.Hashtable;
 import java.util.Map;
 
-import com.flippy.wowza.BaseRequest;
+import com.flippy.wowza.FlippyBaseRequest;
 
 public class Topic {
 	private String name;
-	private Map<String, BaseRequest> subscribers = new Hashtable<String, BaseRequest>();
+	private Map<String, FlippyBaseRequest> subscribers = new Hashtable<String, FlippyBaseRequest>();
 	private	boolean disabled;
 	
 
@@ -16,15 +16,15 @@ public class Topic {
 		this.name = name;
 	}
 	
-	public BaseRequest getSubscriber(String clientId) {
-		return (BaseRequest) subscribers.get(clientId);
+	public FlippyBaseRequest getSubscriber(String clientId) {
+		return (FlippyBaseRequest) subscribers.get(clientId);
 	}
 	
-	public BaseRequest addSubscriber(String clientId, BaseRequest client) {
+	public FlippyBaseRequest addSubscriber(String clientId, FlippyBaseRequest client) {
 		return subscribers.put(clientId, client);
 	}
 	
-	public BaseRequest removeSubscriber(String clientId) {
+	public FlippyBaseRequest removeSubscriber(String clientId) {
 		return subscribers.remove(clientId);
 	}
 	
@@ -37,11 +37,11 @@ public class Topic {
 		this.name = name;
 	}
 
-	public Map<String, BaseRequest> getSubscribers() {
+	public Map<String, FlippyBaseRequest> getSubscribers() {
 		return subscribers;
 	}
 
-	public void setSubscribers(Map<String, BaseRequest> subscribers) {
+	public void setSubscribers(Map<String, FlippyBaseRequest> subscribers) {
 		this.subscribers = subscribers;
 	}
 
