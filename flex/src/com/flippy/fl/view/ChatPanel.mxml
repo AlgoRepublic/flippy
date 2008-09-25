@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<flexlib:SuperTabNavigator xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:flexlib="flexlib.containers.*" width="100%" height="100%" creationComplete="init()">
+	<mx:Script>
+		<![CDATA[
+			import flexlib.controls.SuperTabBar;
+			import mx.utils.StringUtil;
+			import mx.binding.utils.BindingUtils;
+			import flexlib.controls.tabBarClasses.SuperTab;
+			import mx.core.UIComponent;
+			import flexlib.events.SuperTabEvent;
+			import mx.events.ItemClickEvent;
+			import mx.controls.Alert;
+
+			public var sessionId:String;
+			public var from:String;
+			public var serverURL:String;
+			
+			// --- private vars
+			private var boxList:Array;
+			private var chatManager:Chat;
+			
+			[Embed(source="../assets/collapsed.gif")]
+			private var document_icon:Class;
+			
+			[Embed(source="../assets/expanded.gif")]
+			private var home_icon:Class;
+			
+			public function init():void {
+				// important!! order matters
+				initUI();
+			}
+			
+			private function initChatManager():void {
+				chatManager = new Chat(sessionId,from,serverURL,sessionId+".public");
+				// create new public chat for this user
+				chatManager.addEventListener(MessageEvent.MESSAGE_RECEIVED, onMessage);
+				chatManager.addEventListener(CallResultEvent.RESULT_RECEIVED, onCallResult);
+				// subscribe and give the topic to the first chat box
+				// add required event handlers to communicate between chatpanel and chatbox
+			}
+			
+			private function initUI():void {
+				initChatManager();
+				
+				boxList = new Array();
+				
+				addChatBox(chatManager.from, "Public Chat", chatManager.defaultTopic, null, true);
+				
+				tabBar.addEventListener(SuperTabEvent.TAB_CLOSE, onTabClose);
+				closePolicy = SuperTab.CLOSE_ALWAYS;
+				
+				callLater(initNonClosableTab);
+			}
+			
+			private function initNonClosableTab():void {
+				setClosePolicyForTab(0, SuperTab.CLOSE_NEVER);
+			}
+			
+			private function addTab(child:ChatBox, lbl:String, icon:Class=null):int {
+				if(lbl=="") lbl = "(Untitled)";
+				
+				var curNum:int = this.numChildren + 1;
+				
+				child.setStyle("closable", true);
+				
+				child.label = lbl;
+				
+				if(icon) {
+					child.icon = icon;
+				}
+				else {
+					child.icon = document_icon;
+				}
+				
+				this.addChild(child);
+				
+				return curNum;
+			}
+			
+			public function createChatBox(chatManager:Chat, sendTo:String, topic:String):ChatBox {
+				var cBox:ChatBox = new ChatBox();
+				cBox.chatManager = chatManager;
+				cBox.sendTo = sendTo;
+				cBox.topic = topic;
+				cBox.chatPanel = this;
+				
+				return cBox;
+			}
+			
+			public function addChatBox(from:String, sendTo:String, topic:String, theMsg:String, senderBox:Boolean, chatReq:Boolean=false):void {
+				var cb:ChatBox = createChatBox(chatManager, sendTo, topic);
+				
+				// send chat request on first message?
+				cb.chatRequest = chatReq;
+				
+				// only add message to chat request reciever
+				if (theMsg != null && StringUtil.trim(theMsg).length > 0) {
+					cb.defaultMessage = theMsg;
+					cb.defaultFrom = from;
+				}
+				
+				boxList[topic] = cb;
+				
+				var childIdx:int = this.numChildren + 1;
+				
+				if (senderBox) {
+					childIdx = addTab(cb, sendTo);
+				} else {
+					childIdx = addTab(cb, from);
+				}
+				
+				this.selectedIndex = childIdx - 1 ;
+				
+				trace("Creating chatbox with topic: " + topic + "; tabIdx: " + childIdx);
+			}
+			
+			public function onTabClose(event:flexlib.events.SuperTabEvent):void {
+				removeChatBox(this.getTabAt(event.tabIndex).label);
+			}
+			
+			public function removeChatBox(topic:String):void {
+				
+				trace("Removing chatbox with label: " + topic);
+				
+				if (topic != null) {
+					chatManager.unsubscribe(topic);
+					
+					boxList[topic] = null;
+					trace("chat box for topic: " + topic + " was removed eveal("+boxList[topic]+")");
+				} else {
+					trace("chat box with label " + topic + " does not exists");
+				}
+			}
+			
+			// ---------------- CLient RPC
+			public function sendChatRequest(sendTo:String):void {
+				if (sendTo != chatManager.from) {
+				
+					var topic:String = chatManager.sessionId + "." + chatManager.from + "-" + sendTo;
+					
+					if (boxList[topic] == null) {
+						trace("creating new chatbox for topic: " + topic);
+						addChatBox(chatManager.from, sendTo, topic, null, true, true);
+					} else {
+						trace("chat box already openend");
+					}
+				} else {
+					trace ("about to chat to ur self");
+				}
+			}
+			
+			public function disableTopic(topic:String, msg:String):void {
+				chatManager.disableTopic(topic, msg);
+			}
+			
+			public function enableTopic(topic:String, msg:String):void {
+				chatManager.enableTopic(topic, msg);
+			}
+			
+			// ---------------- SERVER CALL
+			public function onMessage(event:MessageEvent):void {
+				trace("get message: " + event.message + " from " + event.from);
+				var chatBox:ChatBox = boxList[event.topic];
+				if (chatBox != null) {
+					trace("box already exists for topic: " + event.topic);
+					chatBox.addMessage(event.from, event.message);
+				} else {
+					trace("create new box for topic: " + event.topic);
+					// ask?
+					// create
+					addChatBox(event.from, event.sendTo, event.topic, event.message, false);
+				}
+			}
+			
+			public function onCallResult(event:CallResultEvent):void {
+				var chatBox:ChatBox = boxList[event.topic];
+				
+				if (chatBox != null) {
+					chatBox.onCallResult(event);
+				}
+			}
+			
+		]]>
+	</mx:Script>
+</flexlib:SuperTabNavigator>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
+         xmlns:flippy="components.*" 
+		 xmlns:view="com.flippy.fl.view.*" 
+		 width="100%" height="100%" creationComplete="init()">
+	
+	<mx:Script>
+		<![CDATA[
+			import com.flippy.fl.model.FlippyModelLocator;
+		
+			[Bindable]
+			public var model:FlippyModelLocator = FlippyModelLocator.getInstance();
+		
+			public function init():void {
+				
+			}
+			
+			public function sendChat():void {
+				cp.sendChatRequest(chatName.text);
+			}
+			
+			public function disableTopic():void {
+				cp.disableTopic("session1.public", "$flippy:sys$mendisable room ini");
+			}
+			
+			public function enableTopic():void {
+				cp.enableTopic("session1.public", "$flippy:sys$mengenable room ini");
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mx:HDividedBox width="100%" height="100%" >
+		<mx:Panel width="20%" height="100%">
+			<mx:Label text="{model.main.sessionId}"/>
+			<mx:Label text="{model.main.userName}"/>
+			<mx:Label text="{model.main.password}"/>
+			<mx:Label text="{model.main.role}"/>
+		</mx:Panel>
+		<mx:Panel width="80%" height="100%">
+			<flippy:Whiteboard serverUrl="rtmp://localhost:1935/flippy" />
+			<mx:HBox>
+				<mx:Button label="chat to" click="sendChat()"/>
+				<mx:TextInput id="chatName" text="flippy"/>
+			</mx:HBox>
+			<mx:Button label="disable public" click="disableTopic()"/>
+			<mx:Button label="enable public" click="enableTopic()"/>
+			<mx:HBox width="100%">
+				<flippy:ChatPanel id="cp" sessionId="session1" from="{model.main.userName}" serverURL="rtmp://localhost:1935/flippy"/>	
+				<view:QuestionBox id="qb" enabled="{model.main.enableQuestionBox}"/>
+			</mx:HBox>
+		</mx:Panel>	
+	</mx:HDividedBox>
+	
+	
+</mx:VBox>

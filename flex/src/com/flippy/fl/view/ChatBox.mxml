@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VDividedBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" paddingLeft="5" paddingRight="5" paddingTop="5" paddingBottom="5" creationComplete="init()">
+	<mx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			import mx.controls.Alert;
+			import flash.net.NetConnection;
+		
+			public var sendTo:String;
+			public var topic:String;
+			public var chatManager:Chat;
+			public var chatPanel:ChatPanel;
+			
+			public var defaultMessage:String;
+			public var defaultFrom:String;
+		
+			public var chatRequest:Boolean = false;
+			
+			private function init():void {
+				// todo
+				
+				if (defaultMessage != null) {
+					addMessage(defaultFrom, defaultMessage);
+				}
+				
+			}
+			
+			public function keyEventHandler(event:KeyboardEvent):void {
+				if (event.currentTarget == txtChatInput && event.keyCode == Keyboard.ENTER) {
+					sendMessage();
+				}
+			}	
+			
+			/**************** public methods ************/
+			public function sendMessage():void {
+				
+				var theMsg:String = txtChatInput.text;
+				
+				callLater(
+					function doLater():void {
+						txtChatInput.text = null;
+						txtChatInput.htmlText = null;
+					}
+				);
+				
+				if (theMsg.length > 0) {	
+					if (chatRequest) {
+						trace("about to send chat request");
+						chatRequest = false;
+						sendChatRequest(theMsg);
+					} else {
+						chatManager.publish(topic, sendTo, theMsg);
+					}
+				}
+				
+			}		
+			
+			public function addMessage(from:String, theMsg:String):void {
+				var formattedMsg:String = null;
+				
+				trace(theMsg.indexOf("$flippy:sys$"));
+				
+				if (theMsg.indexOf("$flippy:sys$")==0) {
+					formattedMsg = "<i>"+from+" " + theMsg.substr(12)+"</i>";
+				} else {
+					formattedMsg = "<b>"+from+"</b>: " + theMsg;	
+				}
+				
+				if (txaChatBoard != null) {
+					txaChatBoard.htmlText += formattedMsg;
+				} else {
+					txaChatBoard.htmlText = formattedMsg;
+				}
+				
+				txaChatBoard.validateProperties();
+				
+				callLater(
+					scrollToEnd
+				);
+			}
+			
+			public function onCallResult(event:CallResultEvent):void {
+				if (event.method == Chat.CALL_SENDCHATREQ) {
+					if (event.code == 500) {
+						addMessage("", "$flippy:sys$User tidak ada");
+					}
+				}
+			}
+			
+			private function scrollToEnd():void {
+				txaChatBoard.verticalScrollPosition = txaChatBoard.maxVerticalScrollPosition;
+			}
+			
+			private function sendChatRequest(theMsg:String):void {
+				chatManager.sendChatRequest(sendTo, topic, theMsg);
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mx:TextArea width="100%" height="70%" editable="false" wordWrap="true" id="txaChatBoard" minHeight="50"/>
+	<mx:HBox width="100%" minHeight="50">
+		<mx:TextArea width="100%" height="95%" id="txtChatInput" keyDown="keyEventHandler(event)" wordWrap="true" />
+		<mx:Button label="Send" id="btnChatSend" width="60" click="sendMessage()"/>
+	</mx:HBox>
+	
+</mx:VDividedBox>
