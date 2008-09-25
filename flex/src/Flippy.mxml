@@ -58,7 +58,7 @@
 	<mx:ViewStack id="vs" width="100%" height="100%" selectedIndex="{model.main.mainScreenState}">
 		<view:Login id="loginPage"/>
 		<view:RoomSelection id="roomPage"/>
-		<view:StartPage id="startPage"/>
+		<view:ConferencePage id="startPage"/>
 	</mx:ViewStack>
 	<mx:TitleWindow id="debugWindow" title="Debug Window" showCloseButton="true" close="removeDebugWindow(event)" 
 					focusEnabled="false" width="100%" height="100" visible="{debugEnabled}">
