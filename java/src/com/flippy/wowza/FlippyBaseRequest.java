@@ -2,19 +2,20 @@ package com.flippy.wowza;
 
 import com.wowza.wms.client.IClient;
 
-public class BaseRequest {
+public class FlippyBaseRequest {
 	String sessionId;
 	String id;
 	IClient client;
 	
-	public BaseRequest() {
+	public FlippyBaseRequest() {
 		super();
 	}
 	
-	public BaseRequest(String sessionId, IClient client) {
+	public FlippyBaseRequest(String sessionId, IClient client) {
 		super();
 		this.sessionId = sessionId;
 		this.client = client;
+		this.id = String.valueOf(client.getClientId());
 	}
 	
 	public String getSessionId() {

@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.flippy.domain.ChatLog;
+import com.flippy.service.ChatLogService;
 
 import junit.framework.TestCase;
 

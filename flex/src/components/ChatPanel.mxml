@@ -19,10 +19,10 @@
 			private var boxList:Array;
 			private var chatManager:Chat;
 			
-			[Embed(source="../assets/collapsed.gif")]
+			[Embed(source="../../assets/collapsed.gif")]
 			private var document_icon:Class;
 			
-			[Embed(source="../assets/expanded.gif")]
+			[Embed(source="../../assets/expanded.gif")]
 			private var home_icon:Class;
 			
 			public function init():void {

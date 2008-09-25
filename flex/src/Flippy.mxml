@@ -1,18 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:fl="components.*" layout="vertical" verticalAlign="middle">
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" 
+	            xmlns:view="com.flippy.fl.view.*" 
+	            xmlns:control="com.flippy.fl.control.*"
+	            layout="vertical"
+				creationComplete="init()">
 	<mx:Script>
 		<![CDATA[
-			import components.LoginEvent;
+			import flash.display.DisplayObject;
+			import flash.events.DataEvent;
+			import flash.events.Event;
+			import flash.events.MouseEvent;
+			import mx.controls.Alert;
+			import mx.controls.TextArea;
+			import mx.core.IFlexDisplayObject;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.managers.FocusManager;
+			import mx.managers.PopUpManager;			
+			import com.flippy.fl.model.FlippyModelLocator;
+			import com.flippy.fl.model.Main;
 			
-			public function doAuthorized(event:LoginEvent):void {
-				startPage.loginInfo = event.loginInfo;
-				vs.selectedIndex = 1;
-				
+			[Bindable]
+			private var model:FlippyModelLocator = FlippyModelLocator.getInstance();
+			
+			[Bindable]
+			private var debugEnabled:Boolean = false;
+						
+			private function init():void {				
+				this.focusEnabled = false;
+				showDebugWindow();
 			}
+			
+			private function showDebugWindow():void {
+				debugEnabled = true;
+				//PopUpManager.addPopUp(debugWindow, this);
+			}
+			
+			private function removeDebugWindow(event:CloseEvent):void {
+				//PopUpManager.removePopUp(IFlexDisplayObject(event.target));
+				removeChild(DisplayObject(event.target));				
+			}
+			
+			private function updateScroll(event:Event):void {
+				var ta:TextArea = TextArea(event.target);
+				ta.verticalScrollPosition = ta.maxVerticalScrollPosition;
+				//ta.invalidateProperties();						
+			}
+			
 		]]>
 	</mx:Script>
-	<mx:ViewStack id="vs" width="100%" height="100%">
-		<fl:Login id="loginPage" authorized="doAuthorized(event)"/>
-		<fl:StartPage id="startPage"/>
+	<control:FlippyController />	
+	<mx:ApplicationControlBar id="appCntrBar" dock="true">		
+		<mx:HBox width="100%">
+			<mx:Label text="{model.main.bncConnected?'Connected':'Disconnected'} to server" width="100%" />
+		</mx:HBox>
+	</mx:ApplicationControlBar>
+	<mx:ViewStack id="vs" width="100%" height="100%" selectedIndex="{model.main.mainScreenState}">
+		<view:Login id="loginPage"/>
+		<view:RoomSelection id="roomPage"/>
+		<view:StartPage id="startPage"/>
 	</mx:ViewStack>
+	<mx:TitleWindow id="debugWindow" title="Debug Window" showCloseButton="true" close="removeDebugWindow(event)" 
+					focusEnabled="false" width="100%" height="100" visible="{debugEnabled}">
+		<mx:TextArea id="debugTxtArea" htmlText="{model.logger.statusText}" width="100%" height="100%" 
+		            cornerRadius="4" focusEnabled="false" borderStyle="solid" updateComplete="updateScroll(event)">
+		</mx:TextArea>
+	</mx:TitleWindow>	
 </mx:Application>

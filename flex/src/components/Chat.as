@@ -16,11 +16,11 @@ package components
 		private var nc:NetConnection;
 		private var res:Responder = new Responder(onResult);
 				
-		public static const CALL_PUBLISH:String = "publish";
-		public static const CALL_SUBSCRIBE:String = "subscribe";
-		public static const CALL_UNSUBSCRIBE:String = "unSubscribe";
-		public static const CALL_SENDCHATREQ:String = "sendChatRequest";
-		public static const CALL_DISABLE_TOPIC:String = "disableTopic";
+		public static const CALL_PUBLISH:String = "chat.publish";
+		public static const CALL_SUBSCRIBE:String = "chat.subscribe";
+		public static const CALL_UNSUBSCRIBE:String = "chat.unSubscribe";
+		public static const CALL_SENDCHATREQ:String = "chat.sendChatRequest";
+		public static const CALL_DISABLE_TOPIC:String = "chat.disableTopic";
 		
 		public function Chat(sessionId:String, from:String, serverURL:String, defaultTopic:String)
 		{
