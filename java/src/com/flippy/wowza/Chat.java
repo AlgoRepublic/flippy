@@ -6,12 +6,6 @@ import java.util.Map;
 
 import com.flippy.service.ChatLogService;
 import com.flippy.service.ServiceManager;
-import com.flippy.wowza.BaseRequest;
-import com.flippy.wowza.FlippyModuleBase;
-import com.flippy.wowza.PublishRequest;
-import com.flippy.wowza.SubscribeRequest;
-import com.flippy.wowza.Topic;
-import com.flippy.wowza.TopicStatusRequest;
 import com.wowza.wms.amf.AMFDataList;
 import com.wowza.wms.application.IApplicationInstance;
 import com.wowza.wms.client.IClient;
@@ -229,7 +223,6 @@ public class Chat extends FlippyModuleBase implements IModuleCallResult {
 					
 					ServiceManager.getInstance().execute(new Runnable() {
 					
-						@Override
 						public void run() {
 							ChatLogService.writeLog(ldestUname, lmsg, lUserName, lSessionId, ldate, lTopic);
 						}
@@ -383,7 +376,6 @@ public class Chat extends FlippyModuleBase implements IModuleCallResult {
 		unsubscribeFromAll(client);
 	}
 
-	@Override
 	public void onResult(IClient client, RequestFunction function,
 			AMFDataList params) {
 		getLogger().info("got result from client: " + getParamString(params, PARAM1));

@@ -34,13 +34,11 @@ public class ChatLogDAOImpl implements ChatLogDAO {
 		this.transactionTemplate = new TransactionTemplate(ptm);
 	}
 	
-	@Override
 	public List<ChatLog> getBySender(String senderUserName) {
 		String sql = "select id, session_id, sender_name, dest_name, topic, message, timestamp from fl_chat_log where sender_name=?";
 		
 		ParameterizedRowMapper<List<ChatLog>> mapper = new ParameterizedRowMapper<List<ChatLog>>() {
 
-			@Override
 			public List<ChatLog> mapRow(ResultSet rs, int rowNum) throws SQLException {
 				
 				List<ChatLog> ret = new ArrayList<ChatLog>();
@@ -74,7 +72,6 @@ public class ChatLogDAOImpl implements ChatLogDAO {
 		return ret;
 	}
 
-	@Override
 	public int writeLog(String destinationUserName, String message,
 			String senderUserName, String sessionId, Date timestamp,
 			String topic) {
