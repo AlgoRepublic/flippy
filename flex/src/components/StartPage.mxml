@@ -6,7 +6,7 @@
 			public var loginInfo:LoginInfo;
 			
 			public function init():void {
-				
+				whiteboard.connect();
 			}
 			
 			public function sendChat():void {
@@ -30,14 +30,14 @@
 			<mx:Label text="{loginInfo.rememberMe}"/>
 		</mx:Panel>
 		<mx:Panel width="80%" height="100%">
-			<flippy:Whiteboard width="100%" serverUrl="rtmp://localhost:1935/Flippy"/>
+			<flippy:Whiteboard id="whiteboard" width="100%" serverUrl="rtmp://localhost:1935/flippy"/>
 			<mx:HBox>
 				<mx:Button label="chat to" click="sendChat()"/>
 				<mx:TextInput id="chatName" text="flippy"/>
 			</mx:HBox>
 			<mx:Button label="disable public" click="disableTopic()"/>
 			<mx:Button label="enable public" click="enableTopic()"/>
-			<flippy:ChatPanel id="cp" sessionId="session1" from="{loginInfo.userName}" serverURL="rtmp://localhost:1935/Flippy"/>
+			<flippy:ChatPanel id="cp" sessionId="session1" from="{loginInfo.userName}" serverURL="rtmp://localhost:1935/flippy"/>
 		</mx:Panel>	
 	</mx:HDividedBox>
 	
