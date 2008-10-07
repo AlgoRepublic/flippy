@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:ViewStack id="viewstack" xmlns:mx="http://www.adobe.com/2006/mxml" width="400" height="300">
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.events.CloseEvent;
+			import mx.controls.Alert;
+			import mx.rpc.events.ResultEvent;
+			[Bindable]
+			private var learningAges:Array = new Array();
+			[Bindable]
+			private var rooms:Array = new Array();
+			[Bindable]
+			private var roomFormTitle:String = "Room Form";
+			private var roomToEdit:Object = null;
+			
+			[Bindable]
+			private var roomName:String;
+			[Bindable]
+			private var roomLearningAgeSelectedIndex:int = -1;
+			[Bindable]
+			private var roomDescription:String;
+			
+			private var nc:NetConnection;
+			private var _serverUrl:String = "rtmp://localhost/flippy";
+			
+			private function init():void
+			{
+				for (var i:int; i < 12; i++)
+				{
+					var val:int = i + 1;
+					learningAges.push(val);
+				}
+				
+				
+			}
+			
+			public function set serverUrl(url:String):void
+			{
+				_serverUrl = url;
+			}
+			
+			public function get serverUrl():String
+			{
+				return _serverUrl;
+			}
+			
+			public function connect():void
+			{
+				trace("Connecting to server using '" + _serverUrl + "' ...");
+				nc = new NetConnection();
+				nc.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
+				
+				nc.connect(_serverUrl);
+			}
+			
+			public function disconnect():void
+			{
+				trace("Disconnect");
+				if (nc != null)
+				{
+					nc.close();
+				}
+			}
+			
+			private function netStatusHandler(event:NetStatusEvent):void
+			{
+				trace("nc:" + event.info.code + " - " + event.info.description);
+				if (event.info.code == "NetConnection.Connect.Success")
+				{
+					trace("Connected");
+					fetchRoomList();
+				}
+				else if (event.info.code == "NetConnection.Connect.Closed")
+				{
+					trace("Disconnected");
+				}
+			}
+			
+			private function newRoom():void
+			{
+				viewstack.selectedChild = roomForm;
+				roomFormTitle = "New Room";
+			}
+			
+			private function modifyRoom():void
+			{
+				roomToEdit = roomDataGrid.selectedItem;
+				trace("Room to edit : " + roomToEdit);
+				if (roomToEdit == null)
+				{
+					trace("About to modify room, but no room selected");
+					Alert.show("Please select room to delete", "Room Deletion", Alert.OK);
+					return;
+				}
+				roomFormTitle = "Modify Room";
+				roomName = roomToEdit.name;
+				roomLearningAgeSelectedIndex = roomToEdit.learningAge - 1;
+				roomDescription = roomToEdit.description;
+				viewstack.selectedChild = roomForm;
+			}
+			
+			private function deleteRoom():void
+			{
+				var room:Object = roomDataGrid.selectedItem;
+				if (room == null)
+				{
+					trace("About to delete room, but no room selected");
+					Alert.show("Please select room to delete", "Room Deletion", Alert.OK);
+					return;
+				}
+				
+				trace("About to delete room with id " + room.id);
+				function closeHandler(evt:CloseEvent):void
+				{
+					if (evt.detail == Alert.YES)
+					{
+						trace("Delete room with id " + room.id + "(" + room.name + ")");
+						nc.call("deleteRoom", new Responder(roomsResultHandler, statusHandler), room.id);
+					}
+					else
+					{
+						trace("Cancel the room deletion");
+					}
+				}
+				Alert.show("Are you sure want to delete\n'" + room.name + "'", "Room Deletion", Alert.YES | Alert.NO, this, closeHandler); 
+				
+			}
+			
+			private function saveRoom():void
+			{
+				trace("Save room");
+				if (roomNameInput.text.length == 0)
+				{
+					Alert.show("Please fill the room name", "Field required", Alert.OK);
+				} 
+				else if (roomLearningAgeCombo.selectedIndex == -1)
+				{
+					Alert.show("Please fill the learning age", "Field required", Alert.OK);
+				}
+				else 
+				{
+					if (roomToEdit == null)
+					{
+						trace("About to create room (" + roomNameInput.text + ", " + roomLearningAgeCombo.value + ", " + roomDescriptionText.text + ")");
+						nc.call("createRoom", new Responder(roomsResultHandler, statusHandler), roomNameInput.text, roomLearningAgeCombo.value, roomDescriptionText.text);
+						cleanRoomForm();
+					}
+					else 
+					{
+						trace("About to save the modified room (" + roomToEdit.id + ", " + roomNameInput.text + ", " + roomLearningAgeCombo.value + ", " + roomDescriptionText.text + ")");
+						nc.call("updateRoom", new Responder(roomsResultHandler, statusHandler), roomToEdit.id, roomNameInput.text, roomLearningAgeCombo.value, roomDescriptionText.text);
+					}
+					viewstack.selectedChild = roomListCanvas;
+				}
+				
+			}
+			
+			private function cancelSaveRoom():void
+			{
+				trace("Cancel save room");
+				cleanRoomForm();
+				// always clean roomToEdit (but it doesn't have to, only need when on edit mode)
+				roomToEdit = null;
+				viewstack.selectedChild = roomListCanvas;
+			}
+			
+			private function cleanRoomForm():void
+			{
+				roomName = "";
+				roomLearningAgeSelectedIndex = -1;
+				roomDescription = "";
+			}
+			
+			private function fetchRoomList():void
+			{
+				trace("Fetch room list");
+				nc.call("getRooms", new Responder(roomsResultHandler, statusHandler));
+			}
+			
+			private function roomsResultHandler(result:Object):void
+			{
+				trace("Accept rooms result:" + result);
+				rooms = result as Array;
+			}
+			
+			private function statusHandler(status:Object):void
+			{
+				trace("Status handler:" + status);
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mx:Canvas id="roomListCanvas" label="RoomList" width="100%" height="100%">
+		<mx:DataGrid x="10" y="10" dataProvider="{rooms}" id="roomDataGrid" width="740" height="252">
+			<mx:columns>
+				<mx:DataGridColumn headerText="Name" dataField="name"/>
+				<mx:DataGridColumn headerText="Learning Age" dataField="learningAge"/>
+				<mx:DataGridColumn headerText="Description" dataField="description"/>
+				<mx:DataGridColumn headerText="Created Date" dataField="dateCreate"/>
+			</mx:columns>
+		</mx:DataGrid>
+		<mx:HBox x="539" y="270">
+			<mx:Button label="New" width="65" click="newRoom()"/>
+			<mx:Button label="Modify" width="65" click="modifyRoom()"/>
+			<mx:Button label="Delete" click="deleteRoom()" width="65"/>
+		</mx:HBox>
+	</mx:Canvas>
+	<mx:Canvas id="roomForm" label="NewRoom" width="100%" height="100%">
+		<mx:Form x="10" y="10" width="740" height="282">
+			<mx:FormHeading label="{roomFormTitle}"/>
+			<mx:FormItem label="Name" width="100%">
+				<mx:TextInput width="100%" id="roomNameInput" text="{roomName}"/>
+			</mx:FormItem>
+			<mx:FormItem label="Learning Age" width="100%">
+				<mx:ComboBox width="100%" dataProvider="{learningAges}" prompt="Select learning age" id="roomLearningAgeCombo" selectedIndex="{roomLearningAgeSelectedIndex}">
+				</mx:ComboBox>
+			</mx:FormItem>
+			<mx:FormItem label="Description" width="100%">
+				<mx:TextArea height="142" width="100%" id="roomDescriptionText" text="{roomDescription}"/>
+				<mx:HBox>
+					<mx:Button label="OK" width="65" click="saveRoom()"/>
+					<mx:Button label="Cancel" width="65" click="cancelSaveRoom()"/>
+				</mx:HBox>
+			</mx:FormItem>
+		</mx:Form>
+	</mx:Canvas>
+			
+</mx:ViewStack>
