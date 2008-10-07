@@ -9,12 +9,14 @@
     <bean id="dataSource" destroy-method="close" class="com.mysql.jdbc.jdbc2.optional.MysqlConnectionPoolDataSource">
         <property name="url" value="jdbc:mysql://localhost/flippy"/>
         <property name="user" value="root"/>
-        <property name="password" value="manager"/>
+        <property name="password" value=""/>
     </bean>
 
     <bean id="ChatLogService" class="com.flippy.service.ChatLogDAOImpl">
         <property name="dataSource" ref="dataSource"/>
     </bean>
 
-	
+	<bean id="RoomDAO" class="com.flippy.service.RoomDAOImpl">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
 </beans>
