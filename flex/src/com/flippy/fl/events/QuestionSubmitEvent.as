@@ -9,11 +9,11 @@ package com.flippy.fl.events
 		public static const SUBMIT_QUESTION:String = "flippy.questionSubmit";
 		
 		public var userName:String;		
-		public var sessionId:String;
+		public var sessionId:int;
 		public var role:String;
 		public var question:String;
 		
-		public function QuestionSubmitEvent(sessionId:String, userName:String, question:String, role:String)
+		public function QuestionSubmitEvent(sessionId:int, userName:String, question:String, role:String)
 		{
 			super(SUBMIT_QUESTION);
 			this.sessionId = sessionId;
