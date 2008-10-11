@@ -4,10 +4,13 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
 public class LoginDAOImpl implements LoginDAO {
-
+    private static final Log logger = LogFactory.getLog(LoginDAOImpl.class);
+    
 	private SimpleJdbcTemplate simpleJdbcTemplate;
 
 	public void setDataSource(DataSource dataSource) {
@@ -25,7 +28,7 @@ public class LoginDAOImpl implements LoginDAO {
 		try {
 			ret = simpleJdbcTemplate.queryForMap(sql, userName, password);
 		} catch (Throwable e) {
-			// e.printStackTrace();
+			logger.error("Failed getting user information", e);
 		}
 
 		return ret;
