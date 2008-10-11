@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" verticalAlign="middle" horizontalAlign="center" creationComplete="init()">
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" verticalAlign="middle" horizontalAlign="center" creationComplete="init()" show="initOnShow()">
 	<mx:Script>
 		<![CDATA[
 			import flash.events.Event;
@@ -8,33 +8,40 @@
 			import com.flippy.fl.events.*;			
 		
 			[Bindable]
-			private var dp:Array = [1, 2, 3, 4, 5, 6, 7, 8, 9];  
-			
 			private var model:FlippyModelLocator = FlippyModelLocator.getInstance();
 			
 			private function init():void {
 				// do init
 			}
 			
-			private function doIt(event:Event):void {
-				var but:Button =  Button(event.target)
+			private function initOnShow():void {
 				
-				new RoomChooseEvent(but.label).dispatch();				
+			}
+			
+			private function selectRoom(room:Object):void {
+				//var room:Object = model.main.rooms[index];
+				trace("Selecting room (" + room.id + ", " + room.name +")");
+				model.logger.logMessage("Selecting room (" + room.id + ", " + room.name +")", "RoomSelection");
+				new RoomChooseEvent(room.id).dispatch();				
 			}
 			
 		]]>
 	</mx:Script>
 	
 	<mx:Label text="Please select your room"/>
-	<mx:Tile direction="horizontal" borderStyle="inset" 
-		horizontalGap="10" verticalGap="15"
-		paddingLeft="10" paddingTop="10" paddingBottom="10" paddingRight="10" width="50%">
-	
-		<mx:Repeater id="rp" dataProvider="{dp}">
-			<mx:Button height="49" width="100" 
-				label="{'sess-'+String(rp.currentItem)}" 
-				click="doIt(event)"/>
-		</mx:Repeater>    
-	</mx:Tile>
+	<mx:VBox>
+		<mx:DataGrid borderStyle="inset" height="100%" 
+			width="100%" id="roomDataGrid" dataProvider="{model.main.rooms}">
+			<mx:columns>
+				<mx:DataGridColumn headerText="Name" dataField="name"/>
+				<mx:DataGridColumn headerText="Learning Age" dataField="learningAge"/>
+				<mx:DataGridColumn headerText="Description" dataField="description"/>
+				<mx:DataGridColumn headerText="Created Date" dataField="dateCreate"/>
+			</mx:columns>
+		</mx:DataGrid>
+		<mx:HBox horizontalAlign="right" width="100%">
+			<mx:Button label="Join" click="selectRoom(roomDataGrid.selectedItem)"/>
+		</mx:HBox>
+	</mx:VBox>
   
 </mx:VBox>

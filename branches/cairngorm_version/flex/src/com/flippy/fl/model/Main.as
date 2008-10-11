@@ -1,8 +1,8 @@
 package com.flippy.fl.model
 {
-	import flash.net.NetConnection;
-	
 	import com.flippy.fl.business.NetConnectionDelegate;
+	
+	import flash.net.NetConnection;
 		
 	public class Main
 	{
@@ -21,7 +21,7 @@ package com.flippy.fl.model
 		
 		// credential model
 		[Bindable]	
-		public var sessionId:String;
+		public var sessionId:int;
 		[Bindable]	
 		public var role:String;
 		[Bindable]	
@@ -46,6 +46,10 @@ package com.flippy.fl.model
 		public var enableQuestionBox:Boolean = true;
 		[Bindable]
 		public var questionText:String = "";
+		
+		// room
+		[Bindable]
+		public var rooms:Array = new Array();
 		
 		public function Main()
 		{

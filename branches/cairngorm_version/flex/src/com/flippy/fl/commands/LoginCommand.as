@@ -2,17 +2,16 @@ package com.flippy.fl.commands
 {
 	import com.adobe.cairngorm.commands.ICommand;
 	import com.adobe.cairngorm.control.CairngormEvent;
-	
-	import mx.core.UIComponent;
-	import mx.rpc.IResponder;
-	
 	import com.flippy.fl.business.LoginDelegate;
-	import com.flippy.fl.business.NetConnectionDelegate;
-	import com.flippy.fl.commands.*;
+	import com.flippy.fl.business.RoomDelegate;
 	import com.flippy.fl.events.*;
 	import com.flippy.fl.model.FlippyModelLocator;
 	import com.flippy.fl.view.Login;
 	import com.flippy.fl.vo.LoginVO;
+	
+	import flash.net.Responder;
+	
+	import mx.rpc.IResponder;
 
 	public class LoginCommand implements ICommand, IResponder
 	{		
@@ -57,10 +56,19 @@ package com.flippy.fl.commands
 				model.main.password = loginVO.password;				
 				model.main.role = loginVO.role;
 				
-				model.logger.logMessage( "changing state to " + model.main.MAIN_ROOM_SCREEN, "LoginCommand");
+				function resultHandler(data:Object):void
+				{
+					model.main.rooms = data as Array;
+					model.logger.logMessage("Got result as list of room: size " + model.main.rooms.length, "LoginCommand");
+					model.logger.logMessage("changing state to " + model.main.MAIN_ROOM_SCREEN, "LoginCommand");
+					model.main.mainScreenState = model.main.MAIN_ROOM_SCREEN;
+				}
 				
-				model.main.mainScreenState = model.main.MAIN_ROOM_SCREEN;
-				
+				function faultHandler(info:Object):void
+				{
+					model.logger.logMessage("Got fault in getRoomList", "LoginCommand");
+				}
+				new RoomDelegate(new Responder(resultHandler, faultHandler)).getRoomList(3);
 				
 			} else {
 				// animate login failed

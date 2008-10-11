@@ -31,7 +31,7 @@ package com.flippy.fl.commands
 			// update question text
 			model.main.questionText += "<b>"+qvent.userName+": </b>" + qvent.question + "<br/>";
 			// log question
-			new QuestionDelegate(this).submit(qvent.sessionId, qvent.userName, qvent.question);
+			new QuestionDelegate(this).submit(qvent.sessionId as String, qvent.userName, qvent.question);
 			
 		}
 		

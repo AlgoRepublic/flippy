@@ -8,9 +8,9 @@ package com.flippy.fl.events
 	{
 		public static const CHOOSE:String = "flippy.roomChoose";
 				
-		public var sessionId:String;		
+		public var sessionId:int;		
 		
-		public function RoomChooseEvent(sessionId:String)
+		public function RoomChooseEvent(sessionId:int)
 		{
 			super(CHOOSE);
 			this.sessionId = sessionId;
