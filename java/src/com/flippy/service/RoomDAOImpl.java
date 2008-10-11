@@ -65,7 +65,7 @@ public class RoomDAOImpl implements RoomDAO {
     
     @SuppressWarnings("unchecked")
     public List<Room> getRooms(int requiredLearningAge) {
-        return jdbcTemplate.query("select * from fl_room order where learningAge <= ? by learning_age, name", 
+        return jdbcTemplate.query("select * from fl_room order where learning_age <= ? by learning_age, name", 
                 new Object[]{requiredLearningAge}, new RoomRowMapper());
     }
     
