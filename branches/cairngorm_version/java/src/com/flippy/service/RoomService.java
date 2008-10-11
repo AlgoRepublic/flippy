@@ -24,7 +24,7 @@ public class RoomService {
     
     private static RoomDAO getRoomDao() {
         ApplicationContext ctx = ServiceManager.getInstance().getContext();
-        RoomDAO roomDao = (RoomDAO)ctx.getBean("RoomDAO");
+        RoomDAO roomDao = (RoomDAO)ctx.getBean("RoomService");
         return roomDao;
     }
 
