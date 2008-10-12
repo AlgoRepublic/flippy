@@ -1,8 +1,7 @@
 package com.flippy.fl.control
 {
 	import com.adobe.cairngorm.control.FrontController;
-	
-	import com.flippy.fl.commands.*;	
+	import com.flippy.fl.commands.*;
 	import com.flippy.fl.events.*;
 	
 	public class FlippyController extends FrontController
@@ -28,6 +27,12 @@ package com.flippy.fl.control
 			
 			// room
 			addCommand(RoomChooseEvent.CHOOSE, RoomChooseCommand);
+			addCommand(NewRoomEvent.NEW_ROOM, NewRoomCommand);
+			addCommand(SaveNewRoomEvent.SAVE_NEW_ROOM, SaveNewRoomCommand);
+			addCommand(UpdateRoomEvent.UPDATE_ROOM, UpdateRoomCommand);
+			addCommand(ModifyRoomEvent.MODIFY_ROOM, ModifyRoomCommand);
+			addCommand(DeleteRoomEvent.DELETE_ROOM, DeleteRoomCommand);
+			addCommand(CancelSaveRoomEvent.CANCEL_SAVE_ROOM, CancelSaveRoomCommand);
 		}
 		
 	}

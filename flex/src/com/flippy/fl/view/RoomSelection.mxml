@@ -22,7 +22,7 @@
 				//var room:Object = model.main.rooms[index];
 				trace("Selecting room (" + room.id + ", " + room.name +")");
 				model.logger.logMessage("Selecting room (" + room.id + ", " + room.name +")", "RoomSelection");
-				new RoomChooseEvent(room.id).dispatch();				
+				new RoomChooseEvent(room.id).dispatch();			
 			}
 			
 		]]>

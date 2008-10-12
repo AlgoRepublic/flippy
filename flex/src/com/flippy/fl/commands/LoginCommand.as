@@ -60,8 +60,8 @@ package com.flippy.fl.commands
 				{
 					model.main.rooms = data as Array;
 					model.logger.logMessage("Got result as list of room: size " + model.main.rooms.length, "LoginCommand");
-					model.logger.logMessage("changing state to " + model.main.MAIN_ROOM_SCREEN, "LoginCommand");
 					model.main.mainScreenState = model.main.MAIN_ROOM_SCREEN;
+					//model.main.mainScreenState = model.main.MAIN_ROOM_LIST;
 				}
 				
 				function faultHandler(info:Object):void
