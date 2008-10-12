@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Form xmlns:mx="http://www.adobe.com/2006/mxml" width="400" height="300" creationComplete="init()">
+	<mx:Script>
+		<![CDATA[
+			import com.flippy.fl.events.CancelSaveRoomEvent;
+			import com.adobe.cairngorm.commands.ICommand;
+			import com.flippy.fl.events.UpdateRoomEvent;
+			import com.flippy.fl.events.SaveNewRoomEvent;
+			import mx.controls.Alert;
+			import mx.containers.FormItem;
+			import com.flippy.fl.model.FlippyModelLocator;
+			
+			[Bindable]
+			private var model:FlippyModelLocator = FlippyModelLocator.getInstance();
+			[Bindable]
+			private var learningAges:Array = new Array();
+			
+			private function init():void
+			{
+				for (var i:int = 0; i < 12; i++)
+				{
+					var val:int = i + 1;
+					learningAges.push(val);
+				}
+			}
+			
+			private function saveRoom():void
+			{
+				trace("Save room");
+				model.logger.logMessage("About to save room", "RoomForm");
+				if (roomNameInput.text.length == 0)
+				{
+					Alert.show("Please fill the room name", "Field required", Alert.OK);
+				} 
+				else if (roomLearningAgeCombo.selectedIndex == -1)
+				{
+					Alert.show("Please fill the learning age", "Field required", Alert.OK);
+				}
+				else 
+				{
+					if (model.main.roomToEdit == null)
+					{
+						model.logger.logMessage("About to create room (" + roomNameInput.text + ", " + roomLearningAgeCombo.value + ", " + roomDescriptionText.text + ")", "RoomForm");
+						//nc.call("createRoom", new Responder(roomsResultHandler, statusHandler), roomNameInput.text, roomLearningAgeCombo.value, roomDescriptionText.text);
+						//cleanRoomForm();
+						new SaveNewRoomEvent(resultHandler, roomNameInput.text, roomLearningAgeCombo.value as int, roomDescriptionText.text).dispatch();
+					}
+					else 
+					{
+						//nc.call("updateRoom", new Responder(roomsResultHandler, statusHandler), roomToEdit.id, roomNameInput.text, roomLearningAgeCombo.value, roomDescriptionText.text);
+						model.logger.logMessage("About to save the modified room (" + model.main.roomToEdit.id + ", " + roomNameInput.text + ", " + roomLearningAgeCombo.value + ", " + roomDescriptionText.text + ")", "RoomForm");
+						new UpdateRoomEvent(resultHandler, model.main.roomToEdit.id as int, roomNameInput.text, roomLearningAgeCombo.value as int, roomDescriptionText.text).dispatch();
+					}
+					//viewstack.selectedChild = roomListCanvas;
+				}
+			}
+			private function resultHandler(okStatus:Object):void
+			{
+				cleanRoomForm();
+			}
+			private function cancelSaveRoom():void
+			{
+				new CancelSaveRoomEvent().dispatch();
+			}
+			
+			public function cleanRoomForm():void
+			{
+				model.main.roomName = "";
+				model.main.roomLearningAgeSelectedIndex = -1;
+				model.main.roomDescription = "";
+				model.main.roomToEdit = null;
+			}
+		]]>
+	</mx:Script>
+	<mx:FormHeading label="{model.main.roomFormTitle}"/>
+	<mx:FormItem label="Name" width="100%">
+		<mx:TextInput width="100%" id="roomNameInput" text="{model.main.roomName}"/>
+	</mx:FormItem>
+	<mx:FormItem label="Learning Age" width="100%">
+		<mx:ComboBox width="100%" dataProvider="{learningAges}" prompt="Select learning age" id="roomLearningAgeCombo" selectedIndex="{model.main.roomLearningAgeSelectedIndex}">
+		</mx:ComboBox>
+	</mx:FormItem>
+	<mx:FormItem label="Description" width="100%">
+		<mx:TextArea height="142" width="100%" id="roomDescriptionText" text="{model.main.roomDescription}"/>
+		<mx:HBox>
+			<mx:Button label="OK" width="65" click="saveRoom()"/>
+			<mx:Button label="Cancel" width="65" click="cancelSaveRoom()"/>
+		</mx:HBox>
+	</mx:FormItem>
+</mx:Form>

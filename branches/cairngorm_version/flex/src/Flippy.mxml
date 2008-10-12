@@ -59,6 +59,8 @@
 		<view:Login id="loginPage"/>
 		<view:RoomSelection id="roomPage"/>
 		<view:ConferencePage id="startPage"/>
+		<view:RoomList id="roomListPage" width="100%"/>
+		<view:RoomForm id="roomFormPage"/>
 	</mx:ViewStack>
 	<mx:TitleWindow id="debugWindow" title="Debug Window" showCloseButton="true" close="removeDebugWindow(event)" 
 					focusEnabled="false" width="100%" height="100" visible="{debugEnabled}">
