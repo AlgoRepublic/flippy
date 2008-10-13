@@ -1,0 +1,3 @@
+insert into fl_room (name, learning_age, description, status, dt_create, dt_last_change) values ('Ad Sense', 1, 'Introduction to Ad Sense', 100, now(), now());
+insert into fl_room (name, learning_age, description, status, dt_create, dt_last_change) values ('Ad Word', 1, 'Introduction to Ad Word', 100, now(), now());
+insert into fl_room (name, learning_age, description, status, dt_create, dt_last_change) values ('Web Site', 1, 'Introduction to Web Site', 100, now(), now());
