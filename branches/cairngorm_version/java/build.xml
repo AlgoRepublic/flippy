@@ -1,49 +1,49 @@
 <?xml version="1.0"?>
-<project name="FlippyChat" default="all" basedir=".">
-
-	<property name="wowza.lib.dir" value="C:/Program Files/Wowza Media Systems/Wowza Media Server Pro 1.5.3/lib" />
-	<property name="lib.dir" value="lib" />
-	<property name="jar.filename" value="FlippyChat.jar" />
-	<property name="core.build.dir" value="bin" />
-	<property name="src" value="src" />
-
-	<path id="classpath">
-		<fileset dir="${wowza.lib.dir}" includes="*.jar" excludes="${jar.filename}">
-		</fileset>
-		<fileset dir="${lib.dir}" includes="*.jar" />
+<project name="Flippy" default="compile" basedir=".">
+	
+	<property name="wowza.lib.dir" value="C:/Program Files/Wowza Media Systems/Wowza Media Server Pro 1.5.3/lib"/>
+	<property name="lib.dir" value="lib"/>
+	<property name="jar.filename" value="flippy.jar"/>
+	<property name="core.build.dir" value="bin"/>
+	<property name="dist.dir" value="dist"/>
+	<property name="src.dir" value="src"/>
+	
+	<path id="compile.path">
+		<pathelement path="${lib.dir}/spring.jar"/>
+		<pathelement path="${lib.dir}/commons-logging.jar"/>
+		<pathelement path="${lib.dir}/log4j-1.2.14.jar"/>
+		<pathelement path="${lib.dir}/wms-server.jar"/>
+	</path>
+	
+	<path id="test.path">
+		<path refid="compile.path"/>
+		<pathelement path="${lib.dir}/junit-4.1.jar"/>
 	</path>
 
 	<target name="clean">
-		<delete dir="${core.build.dir}" failonerror="false">
-		</delete>
-		<mkdir dir="${core.build.dir}" />
-	</target>
-
-	<target name="compile">
-		<javac debug="true" debuglevel="${debuglevel}" destdir="${core.build.dir}">
-			<src path="${src}"/>
-			<classpath refid="classpath" />
-		</javac>
-		<copy todir="${core.build.dir}" verbose="true">
-			<fileset dir="${src}" includes="*.xml">
-			</fileset>
-		</copy>
-	</target>
-
-	<target name="jar">
-		<jar jarfile="${wowza.lib.dir}/${jar.filename}">
-			<fileset dir="${core.build.dir}" />
-		</jar>
-		<copy todir="${wowza.lib.dir}" verbose="true">
-			<fileset dir="${lib.dir}" includes="*.jar" />
-		</copy>
-	</target>
-
-	<target name="clean_all" depends="clean, compile, jar">
+		<delete dir="${core.build.dir}" failonerror="false"></delete>
+		<mkdir dir="${core.build.dir}"/>
 	</target>
 	
-	<target name="all" depends="compile, jar">
+	<target name="compile">
+		<javac debug="true" destdir="${core.build.dir}" srcdir="${src.dir}" 
+					classpathref="compile.path"/>
+		
+		<copy todir="${core.build.dir}" verbose="true">
+			<fileset dir="${src.dir}" includes="*.xml"></fileset>
+		</copy>
+		
 	</target>
-
+	
+	<target name="jar" depends="compile">
+		<mkdir dir="${dist.dir}"/>
+		<jar jarfile="${dist.dir}/${jar.filename}">
+			<fileset dir="${core.build.dir}"/>
+		</jar>
+	</target>
+	
+	<target name="install" depends="jar">
+		<copy file="${dist.dir}/${jar.filename}" todir="${wowza.lib.dir}" verbose="true"/>
+	</target>
+	
 </project>
-
