@@ -16,8 +16,19 @@
 			public var model:FlippyModelLocator = FlippyModelLocator.getInstance();
 		
 			public function init():void {
-				
+				var resp:Responder = new Responder(onResult, onStatus);
+				FlippyModelLocator.getInstance().logger.logMessage("member call","member info");
+				FlippyModelLocator.getInstance().main.businessNc.call("member.findByUserName", resp, model.main.userName);
 			}
+			
+			private function onResult(object:Object):void {
+				FlippyModelLocator.getInstance().logger.logMessage("result member info: " + object.city + "," + object.dtlastlogin + "," + object.userName + "," + object.roleName,"member info");
+			}
+	
+			private function onStatus(object:Object):void {			
+				FlippyModelLocator.getInstance().logger.logMessage("fault member info: " + object,"member info");
+			}
+	
 			
 			public function sendChat():void {
 				cp.sendChatRequest(chatName.text);

@@ -63,7 +63,7 @@
 		<view:RoomForm id="roomFormPage"/>
 	</mx:ViewStack>
 	<mx:TitleWindow id="debugWindow" title="Debug Window" showCloseButton="true" close="removeDebugWindow(event)" 
-					focusEnabled="false" width="100%" height="100" visible="{debugEnabled}">
+					focusEnabled="false" width="100%" height="160" visible="{debugEnabled}">
 		<mx:TextArea id="debugTxtArea" htmlText="{model.logger.statusText}" width="100%" height="100%" 
 		            cornerRadius="4" focusEnabled="false" borderStyle="solid" updateComplete="updateScroll(event)">
 		</mx:TextArea>

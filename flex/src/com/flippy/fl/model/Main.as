@@ -2,7 +2,7 @@ package com.flippy.fl.model
 {
 	import com.flippy.fl.business.NetConnectionDelegate;
 	
-	import flash.net.NetConnection;
+	import flash.net.*;
 	
 	import mx.core.Application;
 		
@@ -48,6 +48,8 @@ package com.flippy.fl.model
 		// question box state
 		[Bindable]
 		public var enableQuestionBox:Boolean = true;
+		[Bindable]
+		public var questionTextRSO:SharedObject = null;
 		[Bindable]
 		public var questionText:String = "";
 		

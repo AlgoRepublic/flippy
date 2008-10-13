@@ -129,14 +129,20 @@
 		 * @param date
 		 * @return 
 		 */		
-		private function iso( date : Date ) : String 
+		public function iso( date : Date ) : String 
 		{
-			return  doubleDigits( date.getHours() )
+			return  doubleDigits( date.getFullYear() )
+					+ "/"
+					+ doubleDigits( date.getMonth() )
+					+ "/"
+					+ doubleDigits( date.getDate() )
+					+ " "
+					+ doubleDigits( date.getHours() )
 					+ ":"
 					+ doubleDigits( date.getMinutes() )
 					+ ":"
 					+ doubleDigits( date.getSeconds() )
-					+ ":"
+					+ "."
 					+ tripleDigits( date.getMilliseconds() );
 		}			
 		
