@@ -93,7 +93,7 @@
 				<Description>FLVPlayback</Description>
 				<Class>com.wowza.wms.module.ModuleFLVPlayback</Class>
 			</Module>
-            <Module>
+			<Module>
 				<Name>flippylogin</Name>
 				<Description>Flippy Login</Description>
 				<Class>com.flippy.wowza.login.Login</Class>
@@ -103,16 +103,21 @@
 				<Description>Flippy Chat</Description>
 				<Class>com.flippy.wowza.chat.Chat</Class>
 			</Module>
-            <Module>
+			<Module>
 				<Name>flippyquestion</Name>
 				<Description>Flippy Question</Description>
 				<Class>com.flippy.wowza.question.Question</Class>
 			</Module>
-            <Module>
-                <Name>flippyroom</Name>
-                <Description>Flippy Room Management</Description>
-                <Class>com.flippy.wowza.room.RoomManagement</Class>
-            </Module>
+			<Module>
+				<Name>flippycontroller</Name>
+				<Description>Flippy controller</Description>
+				<Class>com.flippy.wowza.RPCControllerModule</Class>
+			</Module>
+			<Module>
+				<Name>flippyroom</Name>
+				<Description>Flippy Room Management</Description>
+				<Class>com.flippy.wowza.room.RoomManagement</Class>
+			</Module>
 		</Modules>
 		<Properties>
 			<!-- Properties defined here will be added to the IApplication.getProperties() and IApplicationInstance.getProperties() collections -->

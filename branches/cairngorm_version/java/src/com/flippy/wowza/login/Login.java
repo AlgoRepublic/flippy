@@ -11,7 +11,7 @@ import com.wowza.wms.request.RequestFunction;
 
 public class Login extends FlippyModuleBase {
 
-	public void login(IClient client, RequestFunction function, AMFDataList params) {
+	public static void login(IClient client, RequestFunction function, AMFDataList params) {
 		String userName = getParamString(params, PARAM1);
 		String password = getParamString(params, PARAM2);
 		

@@ -23,6 +23,9 @@
     <bean id="LoginService" class="com.flippy.service.LoginDAOImpl">
         <property name="dataSource" ref="dataSource"/>
     </bean>
+    <bean id="MemberInfoService" class="com.flippy.service.MemberInfoDAOImpl">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
 	
 	<bean id="RoomService" class="com.flippy.service.RoomDAOImpl">
 		<property name="dataSource" ref="dataSource"/>

@@ -1,7 +1,9 @@
 package com.flippy.wowza;
 
 import com.flippy.wowza.login.Login;
+import com.flippy.wowza.member.MemberInfo;
 import com.flippy.wowza.question.Question;
+import com.flippy.wowza.room.RoomManagement;
 import com.flippy.wowza.chat.Chat;
 import com.wowza.wms.amf.AMFDataList;
 import com.wowza.wms.application.IApplicationInstance;
@@ -30,7 +32,9 @@ public class RPCControllerModule extends FlippyModuleBase implements IModuleOnCa
 		} else if (method.equals("chat.disableTopic")) {
 			new Chat().disableTopic(client, function, params);
 		} else if (method.equals("login")) {
-			new Login().login(client, function, params);
+			Login.login(client, function, params);
+		} else if (method.equals("member.findByUserName")) {
+			new MemberInfo().findByUserName(client, function, params);
 		}
 	}
 	
