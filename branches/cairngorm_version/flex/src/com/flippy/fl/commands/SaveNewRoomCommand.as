@@ -22,13 +22,13 @@ package com.flippy.fl.commands
 			function roomsResultHandler(data:Object):void
 			{
 				model.main.rooms = data as Array;
-				model.main.mainScreenState = model.main.MAIN_ROOM_LIST;
+				model.main.roomManagementScreenState = model.main.ROOMMANAGEMENT_ROOM_LIST;
 				evt.resultHandler(true);
 			}
 			
 			function statusHandler(info:Object):void
 			{
-				model.main.mainScreenState = model.main.MAIN_ROOM_LIST;
+				model.main.roomManagementScreenState = model.main.ROOMMANAGEMENT_ROOM_LIST;
 				evt.resultHandler(false);
 			}
 			

@@ -17,7 +17,7 @@ package com.flippy.fl.commands
 			model.main.roomName = "";
 			model.main.roomLearningAgeSelectedIndex = -1;
 			model.main.roomDescription = "";
-			model.main.mainScreenState = model.main.MAIN_ROOM_LIST;
+			model.main.roomManagementScreenState = model.main.ROOMMANAGEMENT_ROOM_LIST;
 		}
 	}
 }

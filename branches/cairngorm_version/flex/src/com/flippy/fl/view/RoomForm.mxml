@@ -72,7 +72,6 @@
 			}
 		]]>
 	</mx:Script>
-	<mx:FormHeading label="{model.main.roomFormTitle}"/>
 	<mx:FormItem label="Name" width="100%">
 		<mx:TextInput width="100%" id="roomNameInput" text="{model.main.roomName}"/>
 	</mx:FormItem>

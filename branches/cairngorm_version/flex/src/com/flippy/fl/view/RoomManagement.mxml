@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:ViewStack xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:view="com.flippy.fl.view.*" selectedIndex="{model.main.roomManagementScreenState}" width="400" height="300">
+	<mx:Script>
+		<![CDATA[
+			import com.flippy.fl.model.FlippyModelLocator;
+			
+			[Bindable]
+			private var model:FlippyModelLocator = FlippyModelLocator.getInstance();
+			
+		]]>
+	</mx:Script>
+	<view:RoomList id="roomListPage" width="100%" height="100%"/>
+	<mx:Panel id="roomFormPage" label="{model.main.roomFormTitle}" width="100%" headerColors="100%">
+		<view:RoomForm/>
+	</mx:Panel>
+	
+</mx:ViewStack>

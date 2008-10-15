@@ -23,14 +23,14 @@ package com.flippy.fl.commands
 			{
 				model.logger.logMessage("Getting result ok when update room", "UpdateRoomCommand");
 				model.main.rooms = data as Array;
-				model.main.mainScreenState = model.main.MAIN_ROOM_LIST;
+				model.main.roomManagementScreenState = model.main.ROOMMANAGEMENT_ROOM_LIST;
 				evt.resultHandler(true);
 			}
 			
 			function statusHandler(info:Object):void
 			{
 				model.logger.logMessage("Getting result nok when update room", "UpdateRoomCommand");
-				model.main.mainScreenState = model.main.MAIN_ROOM_LIST;
+				model.main.roomManagementScreenState = model.main.ROOMMANAGEMENT_ROOM_LIST;
 				evt.resultHandler(false);
 			}
 			model.logger.logMessage("Updating room", "UpdateRoomCommand");
