@@ -28,10 +28,10 @@
 		]]>
 	</mx:Script>
 	
-	<mx:Label text="Please select your room"/>
-	<mx:VBox>
+	<mx:Label text="Please select room"/>
+	<mx:VBox width="100%" horizontalGap="5" verticalGap="5">
 		<mx:DataGrid borderStyle="inset" height="100%" 
-			width="100%" id="roomDataGrid" dataProvider="{model.main.rooms}">
+			width="100%" id="roomDataGrid" paddingTop="5" paddingLeft="5" paddingRight="5" dataProvider="{model.main.rooms}">
 			<mx:columns>
 				<mx:DataGridColumn headerText="Name" dataField="name"/>
 				<mx:DataGridColumn headerText="Learning Age" dataField="learningAge"/>
@@ -39,7 +39,7 @@
 				<mx:DataGridColumn headerText="Created Date" dataField="dateCreate"/>
 			</mx:columns>
 		</mx:DataGrid>
-		<mx:HBox horizontalAlign="right" width="100%">
+		<mx:HBox horizontalAlign="right" paddingRight="5" paddingBottom="5" width="100%">
 			<mx:Button label="Join" click="selectRoom(roomDataGrid.selectedItem)"/>
 		</mx:HBox>
 	</mx:VBox>

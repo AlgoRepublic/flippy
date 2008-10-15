@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="400" height="300">
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="400" height="300" verticalGap="5">
 	<mx:Script>
 		<![CDATA[
 			import mx.controls.Alert;
@@ -56,7 +56,7 @@
 			}
 		]]>
 	</mx:Script>
-	<mx:DataGrid x="10" y="10" dataProvider="{model.main.rooms}" id="roomDataGrid" width="100%" height="252">
+	<mx:DataGrid x="10" y="10" dataProvider="{model.main.rooms}" id="roomDataGrid" width="100%" height="100%">
 		<mx:columns>
 			<mx:DataGridColumn headerText="Name" dataField="name"/>
 			<mx:DataGridColumn headerText="Learning Age" dataField="learningAge"/>
@@ -64,9 +64,16 @@
 			<mx:DataGridColumn headerText="Created Date" dataField="dateCreate"/>
 		</mx:columns>
 	</mx:DataGrid>
+	<mx:HBox width="100%" horizontalAlign="right" paddingRight="10" paddingBottom="5">
+		<mx:Button label="New" width="65" click="newRoom()"/>
+		<mx:Button label="Modify" width="65" click="modifyRoom()"/>
+		<mx:Button label="Delete" click="deleteRoom()" width="65"/>
+	</mx:HBox>
+	<!--
 	<mx:HBox x="539" y="270">
 		<mx:Button label="New" width="65" click="newRoom()"/>
 		<mx:Button label="Modify" width="65" click="modifyRoom()"/>
 		<mx:Button label="Delete" click="deleteRoom()" width="65"/>
 	</mx:HBox>
-</mx:Canvas>
+	-->
+</mx:VBox>

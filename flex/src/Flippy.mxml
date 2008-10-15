@@ -57,10 +57,14 @@
 	</mx:ApplicationControlBar>
 	<mx:ViewStack id="vs" width="100%" height="100%" selectedIndex="{model.main.mainScreenState}">
 		<view:Login id="loginPage"/>
-		<view:RoomSelection id="roomPage"/>
+		<mx:Panel id="roomPage" title="Room Selection" layout="vertical" width="100%">
+			<view:RoomSelection width="100%"/>
+		</mx:Panel>
 		<view:ConferencePage id="startPage"/>
-		<view:RoomList id="roomListPage" width="100%"/>
-		<view:RoomForm id="roomFormPage"/>
+		<mx:TabNavigator id="authorHomePage" selectedIndex="{model.main.authorScreenState}">
+			<view:RoomSelection label="Room Selection" width="100%"/>
+			<view:RoomManagement label="Room Management" width="100%"/>
+		</mx:TabNavigator>
 	</mx:ViewStack>
 	<mx:TitleWindow id="debugWindow" title="Debug Window" showCloseButton="true" close="removeDebugWindow(event)" 
 					focusEnabled="false" width="100%" height="160" visible="{debugEnabled}">
