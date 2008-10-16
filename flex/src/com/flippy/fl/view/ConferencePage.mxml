@@ -99,7 +99,7 @@
 			</mx:VBox>
 		</mx:VBox>
 		<mx:Panel width="80%" height="100%">
-			<flippy:Whiteboard serverUrl="rtmp://localhost:1935/flippy" />
+			<flippy:Whiteboard serverUrl="rtmp://localhost:1935/flippy"  height="255" width="100%"/>
 			<mx:HBox>
 				<mx:Button label="chat to" click="sendChat()"/>
 				<mx:TextInput id="chatName" text="flippy"/>
