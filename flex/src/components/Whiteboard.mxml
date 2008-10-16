@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:paper="components.*" creationComplete="init()">
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:paper="components.*" creationComplete="init()" width="946" height="336">
 	<mx:Script>
 		<![CDATA[
 			import mx.controls.Image;
@@ -123,14 +123,6 @@
 		]]>
 	</mx:Script>
 	
-	<mx:Panel width="142" height="100%" layout="vertical" title="Tools">
-		<mx:Button width="100%" id="rectangleTool" selected="true" click="selectATool(rectangleTool)" icon="@Embed(source='../assets/rectangle tool.svg')" height="29" label="Rectange" textAlign="left"/>
-		<mx:Button width="100%" id="ovalTool" click="selectATool(ovalTool)" height="29" icon="@Embed(source='../assets/oval tool.svg')" label="Oval" textAlign="left"/>
-		<mx:Button width="100%" id="lineTool" click="selectATool(lineTool)" height="29" icon="@Embed(source='../assets/line tool.svg')" label="Line" textAlign="left"/>
-		<mx:Button width="100%" id="penTool" click="selectATool(penTool)" height="29" icon="@Embed(source='../assets/pen tool.svg')" label="Pen" textAlign="left"/>
-		<mx:Button width="100%" id="clearTool" click="drawPaper.clear()" height="29" icon="@Embed(source='../assets/eraser tool.svg')" label="Erase All" textAlign="left"/>
-	</mx:Panel>
-	
 	<mx:VBox width="100%" height="100%" borderColor="#B2AFAF" borderThickness="1" borderStyle="solid">
 		<mx:ApplicationControlBar width="100%">
 			<mx:HBox>
@@ -153,6 +145,11 @@
 				<mx:Label text="Thickness"/>
 				<mx:NumericStepper width="53" value="1" stepSize="1" minimum="1" maximum="10" change="strokeThicknessChanged(event)"/>
 			</mx:HBox>
+			<mx:Button id="rectangleTool" selected="true" click="selectATool(rectangleTool)" icon="@Embed(source='../assets/rectangle tool.svg')" height="29" label="Rectange" textAlign="left"/>
+			<mx:Button id="ovalTool" click="selectATool(ovalTool)" height="29" icon="@Embed(source='../assets/oval tool.svg')" label="Oval" textAlign="left"/>
+			<mx:Button id="lineTool" click="selectATool(lineTool)" height="29" icon="@Embed(source='../assets/line tool.svg')" label="Line" textAlign="left"/>
+			<mx:Button id="penTool" click="selectATool(penTool)" height="29" icon="@Embed(source='../assets/pen tool.svg')" label="Pen" textAlign="left"/>
+			<mx:Button id="clearTool" click="drawPaper.clear()" height="29" icon="@Embed(source='../assets/eraser tool.svg')" label="Erase All" textAlign="left"/>
 		</mx:ApplicationControlBar>
 		<mx:HBox width="100%" height="100%" horizontalScrollPolicy="auto" verticalScrollPolicy="auto">
 			<paper:Paper id="drawPaper" width="100%" height="100%" focusEnabled="true">
