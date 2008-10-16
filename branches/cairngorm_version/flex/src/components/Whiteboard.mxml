@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:paper="components.*" creationComplete="init()" width="946" height="336">
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:paper="components.*" creationComplete="init()" borderColor="#B2AFAF" borderThickness="1" borderStyle="solid" height="160">
 	<mx:Script>
 		<![CDATA[
 			import mx.controls.Image;
@@ -17,7 +17,8 @@
 			// shared object
 			private var nc:NetConnection = null;
 			private var mySo:SharedObject = null;
-			private var rtmpUrl:String = "rtmp://localhost/SOSample";
+			private var rtmpUrl:String = "rtmp://localhost/flippy";
+			
 			
 			public function set serverUrl(url:String):void
 			{
@@ -40,6 +41,7 @@
 				trace("Getting remote object from " + nc.uri);
 				mySo = SharedObject.getRemote("whiteboard", nc.uri);
 				mySo.addEventListener(SyncEvent.SYNC, soSyncHandler);
+				
 			}
 			
 			public function disconnect():void
@@ -123,7 +125,7 @@
 		]]>
 	</mx:Script>
 	
-	<mx:VBox width="100%" height="100%" borderColor="#B2AFAF" borderThickness="1" borderStyle="solid">
+	<mx:VBox width="100%" height="100%">
 		<mx:ApplicationControlBar width="100%">
 			<mx:HBox>
 				<mx:Label text="Stroke"/>
@@ -151,9 +153,13 @@
 			<mx:Button id="penTool" click="selectATool(penTool)" height="29" icon="@Embed(source='../assets/pen tool.svg')" label="Pen" textAlign="left"/>
 			<mx:Button id="clearTool" click="drawPaper.clear()" height="29" icon="@Embed(source='../assets/eraser tool.svg')" label="Erase All" textAlign="left"/>
 		</mx:ApplicationControlBar>
+		<mx:HBox width="100%">
+			<mx:Label text="Image URL:"/>
+			<mx:TextInput id="imageUrl" width="100%"/>
+			<mx:Button label="Show"/>
+		</mx:HBox>
 		<mx:HBox width="100%" height="100%" horizontalScrollPolicy="auto" verticalScrollPolicy="auto">
-			<paper:Paper id="drawPaper" width="100%" height="100%" focusEnabled="true">
-			</paper:Paper>
+			<paper:Paper id="drawPaper" width="100%" height="100%" focusEnabled="true"/>
 		</mx:HBox>
 	</mx:VBox>
 		
