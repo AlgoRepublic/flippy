@@ -1,0 +1,2 @@
+insert into fl_role(id, name) values (1, 'author');
+insert into fl_role(id, name) values (2, 'member');
