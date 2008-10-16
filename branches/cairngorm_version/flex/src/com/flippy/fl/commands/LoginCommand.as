@@ -75,7 +75,8 @@ package com.flippy.fl.commands
 				{
 					model.logger.logMessage("Got fault in getRoomList", getQualifiedClassName(this));
 				}
-				new RoomDelegate(new Responder(resultHandler, faultHandler)).getRoomList(3);
+				var requiredLearningAge:int = 3;
+				new RoomDelegate(new Responder(resultHandler, faultHandler)).getRoomList(requiredLearningAge);
 				
 				// init shared object
 				initRSO();

@@ -5,12 +5,10 @@ package com.flippy.fl.events
 	public class NewRoomEvent extends CairngormEvent
 	{
 		public static var NEW_ROOM:String = "flippy.newRoom";
-		public var room:Object;
 		
-		public function NewRoomEvent(room:Object)
+		public function NewRoomEvent()
 		{
 			super(NEW_ROOM);
-			this.room = room;
 		}
 
 	}
