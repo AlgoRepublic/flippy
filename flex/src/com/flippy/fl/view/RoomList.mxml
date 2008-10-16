@@ -13,11 +13,7 @@
 			
 			private function newRoom():void
 			{
-				var room:Object = roomDataGrid.selectedItem;
-				if (room != null)
-				{
-					new NewRoomEvent(roomDataGrid.selectedItem).dispatch();
-				}
+				new NewRoomEvent().dispatch();
 			}
 			
 			private function modifyRoom():void
@@ -56,7 +52,7 @@
 			}
 		]]>
 	</mx:Script>
-	<mx:DataGrid x="10" y="10" dataProvider="{model.main.rooms}" id="roomDataGrid" width="100%" height="100%">
+	<mx:DataGrid dataProvider="{model.main.rooms}" id="roomDataGrid" width="100%" height="100%">
 		<mx:columns>
 			<mx:DataGridColumn headerText="Name" dataField="name"/>
 			<mx:DataGridColumn headerText="Learning Age" dataField="learningAge"/>
@@ -64,16 +60,9 @@
 			<mx:DataGridColumn headerText="Created Date" dataField="dateCreate"/>
 		</mx:columns>
 	</mx:DataGrid>
-	<mx:HBox width="100%" horizontalAlign="right" paddingRight="10" paddingBottom="5">
+	<mx:HBox width="100%" horizontalAlign="right" paddingRight="5" paddingBottom="5">
 		<mx:Button label="New" width="65" click="newRoom()"/>
 		<mx:Button label="Modify" width="65" click="modifyRoom()"/>
 		<mx:Button label="Delete" click="deleteRoom()" width="65"/>
 	</mx:HBox>
-	<!--
-	<mx:HBox x="539" y="270">
-		<mx:Button label="New" width="65" click="newRoom()"/>
-		<mx:Button label="Modify" width="65" click="modifyRoom()"/>
-		<mx:Button label="Delete" click="deleteRoom()" width="65"/>
-	</mx:HBox>
-	-->
 </mx:VBox>

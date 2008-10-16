@@ -18,7 +18,7 @@ package com.flippy.fl.commands
 			model.logger.logMessage("New room", "NewRoomCommand");
 			var evt:NewRoomEvent = event as NewRoomEvent;
 			model.main.roomFormTitle = "New Room";
-			model.main.mainScreenState = model.main.MAIN_ROOM_FORM;
+			model.main.roomManagementScreenState = model.main.ROOMMANAGEMENT_ROOM_FORM;
 		}
 	}
 }
