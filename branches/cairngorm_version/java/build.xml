@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <project name="Flippy" default="compile" basedir=".">
 	
-	<property name="wowza.lib.dir" value="D:/Program Files/Wowza Media Systems/Wowza Media Server Pro 1.5.3/lib"/>
+	<property name="wowza.lib.dir" value="C:/Program Files/Wowza Media Systems/Wowza Media Server Pro 1.5.3/lib"/>
 	<property name="lib.dir" value="lib"/>
 	<property name="jar.filename" value="flippy.jar"/>
 	<property name="core.build.dir" value="bin"/>
