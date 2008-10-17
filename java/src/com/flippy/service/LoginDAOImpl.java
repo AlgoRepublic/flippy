@@ -20,7 +20,8 @@ public class LoginDAOImpl implements LoginDAO {
 	@Override
 	public Map<String, Object> login(String userName, String password) {
 		String sql = 
-			"select l.user_name, l.password, l.role_id, r.name from fl_login l join fl_role r on l.role_id = r.id " +
+			"select l.user_name, l.password, l.role_id, r.name, l.learning_age, l.city " +
+			" from fl_login l join fl_role r on l.role_id = r.id " +
 			"where user_name=? and password=?";
 
 		Map<String, Object> ret=null;

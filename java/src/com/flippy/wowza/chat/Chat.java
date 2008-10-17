@@ -1,364 +1,280 @@
 package com.flippy.wowza.chat;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 
-import com.flippy.service.ChatLogService;
-import com.flippy.service.ServiceManager;
-import com.flippy.wowza.FlippyBaseRequest;
 import com.flippy.wowza.FlippyModuleBase;
-import com.flippy.wowza.chat.PublishRequest;
-import com.flippy.wowza.chat.SubscribeRequest;
-import com.flippy.wowza.chat.Topic;
-import com.flippy.wowza.chat.TopicStatusRequest;
 import com.wowza.wms.amf.AMFDataList;
+import com.wowza.wms.amf.AMFDataObj;
 import com.wowza.wms.application.IApplicationInstance;
 import com.wowza.wms.client.IClient;
 import com.wowza.wms.module.IModuleCallResult;
 import com.wowza.wms.request.RequestFunction;
+import com.wowza.wms.sharedobject.ISharedObject;
+import com.wowza.wms.sharedobject.ISharedObjects;
 
 public class Chat extends FlippyModuleBase implements IModuleCallResult {
 
 	public static final int RESULT_OK = 200;
 	public static final int RESULT_NOK = 500;
 	
-	public static String CALL_PUBLISH = "publish";
-	public static String CALL_SUBSCRIBE = "subscribe";
-	public static String CALL_SENDCHATREQ = "sendChatRequest";
-	public static String CALL_DISABLE_TOPIC = "disableTopic";
+	public static final int KICK_CODE_OTHER_LOGIN = 1; // other user login with same username
+	public static final int KICK_CODE_MODERATOR = 2; // kick by moderator
+	public static final int KICK_CODE_LOGOUT = 3; // kick by logout
 	
 	/**
-	 * List of connected client identified by clientId
+	 * List of connected client identified by username
 	 */
-	private static Map<String, IClient> mClientsMap = new Hashtable<String, IClient>();
-	
-	/**
-	 * List of connected client identified by userId
-	 */
-	private static Map<String, IClient> mClientsUsers = new Hashtable<String, IClient>();
-	
-	/**
-	 * List of topics that a client subscribe to
-	 */
-	private static Map<String, Map<String, String>> mClientsTopics = new Hashtable<String, Map<String,String>>();
-	
-	/**
-	 * List of currently subscribed topic.
-	 * contains list of clients who subscribed to a topic
-	 */
-	private static Map<String, Topic> mTopicsMap = new Hashtable<String, Topic>();
+	private static Map<String, Map<String,Object>> mClients = new Hashtable<String, Map<String,Object>>();
+	private static Map<String, Map<String,Object>> mClientsIdx = new Hashtable<String, Map<String,Object>>();	
 	
 	// ----------------- CHAT RPC  ------------------------
-	public void publish(IClient client, RequestFunction function,
+	
+	public void login(IClient client, RequestFunction function,
 			AMFDataList params) {
-		getLogger().info("publish");
+		getLogger().info("login");
 		
-		PublishRequest cc = getPublishRequest(client, function, params);
+		try {
+			
 		
-		doPublish(cc);
-	}
-
-	public void subscribe(IClient client, RequestFunction function,
-			AMFDataList params) {
-		getLogger().info("subscribe");
+			// 1. GET PARAMETERS
+			// sessionId, userName, password, city
+			int sessionId = getParamInt(params, PARAM1);
+			String userName = getParamString(params, PARAM2);
+			//String password = getParamString(params, PARAM3);
+			String city = getParamString(params, PARAM3);
+			
+			// TODO: implements validate()				 			
+			
+			Map<String, Object> clientMap = new HashMap<String, Object>();
+			clientMap.put("sessionId", sessionId);
+			clientMap.put("userName", userName);
+			clientMap.put("client", client);
+			clientMap.put("city", city);
+			
+			addNewUser(clientMap);
 		
-		SubscribeRequest cc = getSubscribeRequest(client, function, params);
-		
-		addChatClient(cc);
+			sendResult(client, params, "OK");
+		} catch (Exception e) {
+			sendResult(client, params, "NOK");
+		}
 	}
 	
-	public void unSubscribe(IClient client, RequestFunction function, AMFDataList params) {
-		getLogger().info("unSubscribe");
+	
+	public void logout(IClient client, RequestFunction function, AMFDataList params) {
+		getLogger().info("logout");
 		
-		SubscribeRequest cc = getSubscribeRequest(client, function, params);
-
-		removeChatClient(cc);
+		// 1. GET PARAMETERS
+		// sessionId, userName
+		String userName = getParamString(params, PARAM2);
+		
+		kickByUserName(userName, KICK_CODE_LOGOUT);
 	}
 
-	public void sendChatRequest(IClient client, RequestFunction function,
+	public void kick(IClient client, RequestFunction function, AMFDataList params) {
+		getLogger().info("kick");
+
+		// 1. GET PARAMETERS
+		// sessionId, userName, targetUserName
+		int sessionId = getParamInt(params, PARAM1);
+		String userName = getParamString(params, PARAM2);
+		String targetUserName = getParamString(params, PARAM3);
+		String msg = getParamString(params, PARAM4);
+		
+		kickByUserName(targetUserName, KICK_CODE_MODERATOR);
+		
+	}
+	
+	public void broadcast(IClient client, RequestFunction function,
 			AMFDataList params) {
-		getLogger().info("sendChatRequest");
+		getLogger().info("broadcast");
 		
-		PublishRequest cc = getPublishRequest(client, function, params);
+		int sessionId = getParamInt(params, PARAM1);
+		String userName = getParamString(params, PARAM2);
+		String msg = getParamString(params, PARAM3);
+		Date date = getParamDate(params, PARAM4);
 		
+		ISharedObject so = getAppInstance(client).getSharedObjects(false).get(getUserRSOName(sessionId));
+		if (so != null) {
+			so.send("onBroadcastMessage", sessionId, userName, msg, date);
+		} else {
+			getLogger().error("Could not broadcast: Null RSO");
+		}
+	}
+
+	
+	/**
+	 * Send message to destUserName. Call onMessage() on client
+	 * 
+	 * @param client
+	 * @param function
+	 * @param params
+	 */
+	public void sendMessage(IClient client, RequestFunction function,
+			AMFDataList params) {
+		getLogger().info("sendMessage");
+
+		int sessionId = getParamInt(params, PARAM1);
+		String userName = getParamString(params, PARAM2);
+		String destUserName = getParamString(params, PARAM3);
+		String msg = getParamString(params, PARAM4);
+		Date date = getParamDate(params, PARAM5);
 		
-		IClient destClient = mClientsUsers.get(cc.getDestUserName());
+		Map<String, Object> destClient = mClients.get(destUserName);
+		
 		if (destClient != null) {
-			
-			// check should be from the same session
-			getLogger().info("About to call: onChatRequest");
-			
-			// subscribe sender to this topic
-			getLogger().info("About to subscribe " + cc.getUserName() + " to topic: " + cc.getTopic());
-			addChatClient(cc);
-			
-			// subscribe dest to this topic 
-			SubscribeRequest dc = new SubscribeRequest();
-			dc.setClient(destClient);
-			dc.setUserName(cc.getDestUserName());
-			dc.setId(String.valueOf(destClient.getClientId()));
-			dc.setSessionId(cc.getSessionId());
-			dc.setTopic(cc.getTopic());
-
-			getLogger().info("About to subscribe " + dc.getUserName() + " to topic: " + dc.getTopic());
-			addChatClient(dc);
-			
-			// publish to both
-			publish(client, function, params);
-			
-			sendResult(client, params, composeResult(RESULT_OK, cc.getTopic(), CALL_SENDCHATREQ, "success sending chat request to: " + cc.getMessage() + " from: " + cc.getUserName()));
-		} else {
-			
-			getLogger().info("Failed calling onChatRequest: no client with name" + cc.getDestUserName() + " was found");
-			sendResult(client, params, composeResult(RESULT_NOK, cc.getTopic(), CALL_SENDCHATREQ, "client with name " + cc.getDestUserName() + " does not exists"));
+			boolean senderBanned = false; // TODO: implements banning
+			if (! senderBanned) {
+				IClient dc = (IClient) destClient.get("client");
+				dc.call("onChatMessage", this, sessionId, userName, msg, date, false);
+			} else {
+				getLogger().debug("sender is banned by dest");
+			}
 		}
+		
 	}
 	
-	public void disableTopic(IClient client, RequestFunction function,
+	public void disableRoom(IClient client, RequestFunction function,
 			AMFDataList params) {
-		getLogger().info("disableTopic");
+		getLogger().info("disableRoom");
 		
-		TopicStatusRequest cc = getTopicStatusRequest(client, function, params);
-
-		String topic = cc.getTopic();
-		
-		Topic t = mTopicsMap.get(topic);
-		
-		if (t != null) {
-			getLogger().info( (cc.isDisableTopic()?" disabling":" enabling") + " topic + '" + topic + "'" );
-			
-			PublishRequest pr = getPublishRequest(client, function, params);
-			pr.setMessage(cc.getMessage());
-			
-			if (cc.isDisableTopic()) {
-				doPublish(pr);
-				t.setDisabled(cc.isDisableTopic());
-			} else if (t.isDisabled() && !cc.isDisableTopic()) {
-				t.setDisabled(cc.isDisableTopic());
-				doPublish(pr);
-			}
-		} else {
-			// topic not found
-			getLogger().info("Topic '" + topic + "' was not found");
-		}
 
 	}
 	
 	// ---------------- HELPER ------------------------------
-	public static FlippyBaseRequest getBaseRequest(IClient client, RequestFunction function,
-			AMFDataList params) {
-		FlippyBaseRequest cc = new FlippyBaseRequest();
-		
-		cc.setId(String.valueOf(client.getClientId()));
-		cc.setClient(client);
-		cc.setSessionId(getParamString(params, PARAM1));
-		
-		return cc;
+	private static String getUserRSOName(int sessionId) {		
+		return sessionId + "users"; // RSO SLOT NAME
 	}
 	
-	public static PublishRequest getPublishRequest(IClient client, RequestFunction function,
-			AMFDataList params) {
-		PublishRequest cc = new PublishRequest();
+	private static void addNewUser(Map<String, Object> aClientMap) {
+		getLogger().info("Abour To add new use");
 		
-		cc.setId(String.valueOf(client.getClientId()));
-		cc.setClient(client);
-		cc.setSessionId(getParamString(params, PARAM1));
-		cc.setTopic(getParamString(params, PARAM2));
-		cc.setUserName(getParamString(params, PARAM3));
-		cc.setMessage(getParamString(params, PARAM4));
-		cc.setDestUserName(getParamString(params, PARAM5));
+		String userName = (String) aClientMap.get("userName");		
+		IClient client = (IClient) aClientMap.get("client");
+		int sessionId = ((Integer)aClientMap.get("sessionId")).intValue();
 		
-		return cc;
-	}
-	
-	public static SubscribeRequest getSubscribeRequest(IClient client, RequestFunction function,
-			AMFDataList params) {
-		SubscribeRequest cc = new SubscribeRequest();
+		String soName = getUserRSOName(sessionId); // RSO SLOT NAME				
 		
-		cc.setId(String.valueOf(client.getClientId()));
-		cc.setClient(client);
-		cc.setSessionId(getParamString(params, PARAM1));
-		cc.setTopic(getParamString(params, PARAM2));
-		cc.setUserName(getParamString(params, PARAM3));
-		
-		return cc;
-	}
-	
-	public static TopicStatusRequest getTopicStatusRequest(IClient client, RequestFunction function,
-			AMFDataList params) {
-		TopicStatusRequest cc = new TopicStatusRequest();
-		
-		cc.setId(String.valueOf(client.getClientId()));
-		cc.setClient(client);
-		cc.setSessionId(getParamString(params, PARAM1));
-		cc.setTopic(getParamString(params, PARAM2));
-		cc.setUserName(getParamString(params, PARAM3));
-		cc.setDisableTopic(getParamBoolean(params, PARAM4));
-		cc.setMessage(getParamString(params, PARAM5));
-		
-		return cc;
-	}
-	
-	
-	public static String composeResult(int code, String topic, String method, String message) {
-		return code + ":" + topic + ":" + method + ":" + message;
-	}
-	
-	private void doPublish(PublishRequest cc) {
-		String topic = cc.getTopic();
-		
-		Topic t = mTopicsMap.get(topic);
-		
-		if (t!=null) {
-		
-			if (!t.isDisabled()) {
-				Map<String, FlippyBaseRequest> subscribers = t.getSubscribers();
-				
-				if (subscribers != null) {
-					// publishing
-					getLogger().info("publishing message to topic '" + topic + "'");
-					
-					// log:
-					final String lUserName = cc.getUserName();
-					final String lmsg = cc.getMessage();
-					final String ldestUname = cc.getDestUserName();
-					final String lSessionId = cc.getSessionId();
-					final String lTopic = cc.getTopic();
-					final Date ldate = new Date();
-					
-					ServiceManager.getInstance().execute(new Runnable() {
-					
-						@Override
-						public void run() {
-							ChatLogService.writeLog(ldestUname, lmsg, lUserName, lSessionId, ldate, lTopic);
-						}
-					});
-					
-					for (String clientId : subscribers.keySet()) {
-						//sendResult(client, params, cc.getUserName() + ": " + cc.getMessage());
-						IClient subs = mClientsMap.get(clientId);
-						if (subs != null) {
-							subs.call("onMessage", this, cc.getUserName(), cc.getDestUserName(), cc.getTopic(), cc.getMessage() );
-						}
-					}
-				} else {
-					getLogger().info("no subscribers found in topic: " + topic);
-				}
-			} else {
-				getLogger().info("Topic '"+topic+"' is disabled");
-			}
-		
-		} else {
-			getLogger().info("No topic found: " + topic);
+		// 1. Check double logon, kick old one 
+		Map<String, Object> prevClient = mClients.get(userName); 
+		if (prevClient != null) {
+			getLogger().info("prev entries exists, kick old one");
+			kickByUserName(userName, KICK_CODE_OTHER_LOGIN);	
 		}
-	}
+		
+		// 2. Add new user in mClients&Idx
+		getLogger().info("add new user: " + aClientMap);
+		mClients.put(userName, aClientMap);		
+		mClientsIdx.put(String.valueOf(client.getClientId()), aClientMap);
+		
+		// 3. Add new user in User List RSO						
+		addToUserListRSO(aClientMap, soName);
 	
-	public void addChatClient(SubscribeRequest cc) {
-			String clientId = cc.getId();
-		
-			// add client
-			if (mClientsMap.get(clientId) == null) {
-				getLogger().debug("Add client with id: " +  clientId + " to clienstmap");
-				mClientsMap.put(clientId, cc.getClient());
-			}
-		
-			// find topic
-			Topic t = mTopicsMap.get(cc.getTopic());
-			
-			if (t != null) {
-				// topic found! add this client
-				
-				if (t.addSubscriber(clientId, cc) == null) {
-					getLogger().info("Add new client: " + cc + " to Topics list: " + cc.getTopic());
-				} else {
-					getLogger().info("Client already subsriber to topic: " + cc.getTopic());
-				}
-			} else {
-				// topic Not Found! create one
-				getLogger().info("Create NEW TOPIC " + cc.getTopic() + " and Add new client: " + cc.getUserName());
-				
-				t = new Topic(cc.getTopic());
-				t.addSubscriber(clientId, cc);
-				
-				mTopicsMap.put(cc.getTopic(), t);
-			}
-			
-			// add chat topic 
-			Map<String, String> topicList = mClientsTopics.get(clientId);
-			if (topicList == null) {
-				topicList  = new Hashtable<String, String>();
-				topicList.put(cc.getTopic(), clientId);
-				
-				getLogger().info("About to add NEW topic list: " + cc.getTopic() + "  to client: " + cc.getUserName());
-				mClientsTopics.put(clientId, topicList);
-			} else {
-				
-				if (topicList.get(cc.getTopic()) == null) {
-					getLogger().info("About to add topic "+ cc.getTopic() +" to " + cc.getUserName());
-					topicList.put(cc.getTopic(), clientId);
-				} else {
-					getLogger().info("Topic: " + cc.getTopic() +" already subscribed by " + cc.getUserName());
-				}
-			}
-			
-			// add client user mapping
-			
-			if (mClientsUsers.get(cc.getUserName()) == null) {
-				getLogger().info("About to add user: " + cc.getUserName() + " to clientuser list");
-				mClientsUsers.put(cc.getUserName(), cc.getClient());
-			}
 	}
-	
-	public void removeChatClient(SubscribeRequest cc) {
+
+	private static void addToUserListRSO(Map<String, Object> aClientMap,
+			String aSoName) {
 		
-		// find topic
-		Topic t = mTopicsMap.get(cc.getTopic());
+		getLogger().info("adding user to user RSO");
 		
-		if (t != null) {
-			// found! remove this client
-			getLogger().info("Removing client: " + cc + " from Topic: " + cc.getTopic());
-			t.removeSubscriber(cc.getId());
-			
-			// check empty maps
-			Map<String, FlippyBaseRequest> subs = t.getSubscribers();
-			if (subs.size() == 0) {
-				getLogger().info("Removing empty topic: " + t.getName());
-				// remove it from topicList
-				mTopicsMap.remove(cc.getTopic());
-			}
-		} else {
-			// topic Not Found!
-			getLogger().info("Topic '" + cc.getTopic() + "' was not found");
+		// GET PARAMS
+		String userName = (String) aClientMap.get("userName");		
+		int sessionId = ((Integer)aClientMap.get("sessionId")).intValue();
+		String city = (String)aClientMap.get("city");
+		IClient client = (IClient) aClientMap.get("client");
+		
+		// GET RSO
+		ISharedObject rso = getAppInstance(client).getSharedObjects(false).getOrCreate(aSoName);
+		
+		// Compose AMF Data 
+		AMFDataObj obj = new AMFDataObj();
+//		obj.put("sessionId", sessionId);
+		obj.put("userName", userName);
+		obj.put("city", city);
+		
+		// Add to RSO
+		rso.lock();
+		try {
+			rso.setProperty(userName, obj);
+		} finally {
+			rso.unlock();
 		}
 		
 	}
 	
-	public void unsubscribeFromAll(IClient client) {
-		// remove this client from all collections
-		String cid = String.valueOf(client.getClientId());
+	private static void removeFromUserListRSO(Map<String, Object> aClientMap, String aSoName) {
+		// GET PARAMS
+		String userName = (String) aClientMap.get("userName");		
+		IClient client = (IClient) aClientMap.get("client");
 		
-		Map<String, String> subscribedTopics = mClientsTopics.get(client);
-		
-		if (subscribedTopics != null) {
-			for (String topics : subscribedTopics.keySet()) {
-				Topic t = mTopicsMap.get(topics);
-				if (t != null) {
-					getLogger().info("removing: " + cid);
-					t.removeSubscriber(cid);
-				} else {
-					getLogger().error("unsubscribeFromAll: this block should be unreachable!!");
-				}
-			}
-		} else {
-			getLogger().debug("Clients subscribe to nothing");
+		// GET RSO
+		ISharedObject rso = getAppInstance(client).getSharedObjects(false).getOrCreate(aSoName);
+				
+		// Remove from RSO
+		rso.lock();
+		try {
+			rso.deleteSlot(userName);
+		} finally {
+			rso.unlock();
 		}
 		
-		mClientsTopics.remove(cid);
+	}		
+	
+	/**
+	 * Call client method (onKickDoubleLogon, onKickByModerator) and disconnect this client. 
+	 * The cleanup will be done in onDisconnect() method.
+	 * 
+	 * @param userName to be kicked
+	 * @param i KICK CODE
+	 */
+	private static void kickByUserName(String userName, int i) {
 		
-		mClientsMap.remove(cid);
+		getLogger().debug("kick user: " + userName);
+		
+		Map<String, Object> c = mClients.get(userName);
+		
+		if (c != null) {
+			IClient iClient = (IClient) c.get("client");
+			if (i == KICK_CODE_OTHER_LOGIN) {
+				getLogger().debug("send kick doublelogon: " + userName);
+				iClient.call("onKickDoubleLogon");			
+			} else if (i == KICK_CODE_MODERATOR) {
+				getLogger().debug("send kick by moderator: " + userName);
+				iClient.call("onKickByModerator");
+			} else {
+				// show nothing
+			}
+			getLogger().debug("shutting down user: " + userName);
+			iClient.shutdownClient();
+			// clean up will be called on onDisconnect
+		}		
+				
 	}
 	
+	public static void cleanUpClient(IClient client) {
+		//removeFromRSO
+		Map<String, Object> aClientMap = mClientsIdx.get(String.valueOf(client.getClientId()));		
+		if (aClientMap != null) {
+			try {
+				// cleanup client				
+				int sessionId = ((Integer)aClientMap.get("sessionId")).intValue();
+				String userName = (String)aClientMap.get("userName");
+				String aSoName = getUserRSOName(sessionId);
+				
+				mClientsIdx.remove(client.getClientId());
+				mClients.remove(userName);				
+				removeFromUserListRSO(aClientMap, aSoName);					
+			} catch (Exception e) {
+				getLogger().error("Exception while removing client with id (" + client.getClientId() + ")", e);
+			}
+		} else {
+			getLogger().error("Ghost user! how can this client does not exists in the mClients: " + client.getClientId());
+		}
+	}
+		
 	// ---------------- LIFE CYCLE --------------------------
 	public void onAppStart(IApplicationInstance appInstance) {
 		super.onAppStart(appInstance);
@@ -371,17 +287,46 @@ public class Chat extends FlippyModuleBase implements IModuleCallResult {
 		String fullname = appInstance.getApplication().getName() + "/"
 				+ appInstance.getName();
 		getLogger().info("onAppStop: " + fullname);
+		
+		// cleanupResources
+		ISharedObjects sharedObjects = appInstance.getSharedObjects(false);
+		List list = sharedObjects.getObjectNames();
+		
+		for (Object object : list) {
+			ISharedObject connectedUsersSO = sharedObjects.get(object.toString()); 
+			if (connectedUsersSO != null)
+			{
+				getLogger().info("onAppStart: release shared object: "+ object.toString());
+				connectedUsersSO.lock();
+				try
+				{
+					connectedUsersSO.release();
+				}
+				catch (Exception e)
+				{
+					getLogger().error("Exception while releasing RSO: " + e.getMessage());
+				}
+				finally
+				{
+					connectedUsersSO.unlock();
+				}
+			}
+		}
+		
 	}
 
 	public void onConnect(IClient client, RequestFunction function,
 			AMFDataList params) {
 		getLogger().info("onConnect: " + client.getClientId());
+		// clean up rso
+		
 	}
 
 	public void onDisconnect(IClient client) {
 		getLogger().info("onDisconnect: " + client.getClientId());
-		unsubscribeFromAll(client);
-	}
+		// clean up client
+		cleanUpClient(client);		
+	}	
 
 	@Override
 	public void onResult(IClient client, RequestFunction function,

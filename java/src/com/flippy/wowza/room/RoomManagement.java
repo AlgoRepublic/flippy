@@ -91,6 +91,7 @@ public class RoomManagement extends FlippyModuleBase implements IModuleNotify, I
             RequestFunction function, AMFDataList params) {
         int requiredLearningAge = params.getInt(PARAM1);
         List<Room> rooms = RoomService.getRooms(requiredLearningAge);
+        getLogger().debug("rooms: "+ rooms);
         AMFDataArray arr = toAmfArray(rooms);
         sendResult(client, params, arr);
     }

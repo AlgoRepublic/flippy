@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Box xmlns:mx="http://www.adobe.com/2006/mxml" width="400" height="300">
+	<mx:Script>
+		<![CDATA[
+			import mx.collections.ListCollectionView;
+			
+			[Bindable]
+			public var title:String;
+			
+			[Bindable]
+			public var dataProvider:ListCollectionView;
+		]]>
+	</mx:Script>
+
+	<mx:Label text="{title}" width="100%"/>
+	<mx:List id="listBox" dataProvider="{dataProvider}" width="100%"/>
+</mx:Box>

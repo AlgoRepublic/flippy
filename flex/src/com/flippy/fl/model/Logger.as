@@ -2,6 +2,7 @@
 {
 	
 	import flash.system.Capabilities;
+	import flash.utils.getQualifiedClassName;
 	
 	/**
 	 * ...
@@ -81,8 +82,17 @@
 		 * @param msgType Status message type.
 		 */		
 		public function logMessage( msg : String, 
-									loggerName : String ) : void 
+									caller : Object ) : void 
 		{			
+			var loggerName:String = "";
+						
+			if (caller is String) {
+				loggerName = String(caller);
+			} else {
+				loggerName = getQualifiedClassName(caller);
+			}
+			
+			
 			var statusMessage : String = iso( new Date() ) + " - " + "["+loggerName+"] " + msg;
 			//
 			statusText += statusMessage + "<br>";			

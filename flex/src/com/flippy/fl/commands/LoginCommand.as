@@ -10,14 +10,10 @@ package com.flippy.fl.commands
 	import com.flippy.fl.view.Login;
 	import com.flippy.fl.vo.LoginVO;
 	
-	import flash.events.SyncEvent;
 	import flash.net.Responder;
-	import flash.net.SharedObject;
 	import flash.utils.getQualifiedClassName;
-	
-	import mx.rpc.IResponder;
 
-	public class LoginCommand implements ICommand, IResponder
+	public class LoginCommand implements ICommand
 	{		
 		private var model:FlippyModelLocator = FlippyModelLocator.getInstance();		
 		private var logger:Logger = model.logger;
@@ -25,42 +21,49 @@ package com.flippy.fl.commands
 		
 		public function LoginCommand()
 		{
+			
 		}
 
 		public function execute(event:CairngormEvent):void
 		{
-			logger.logMessage("About to execute loginCommand", getQualifiedClassName(this));
+			if (!model.main.bncConnected) {
+				model.logger.logMessage("Opening new connection..", "Login.mxml");
+				new SetupConnectionEvent().dispatch();
+				new StartConnectionEvent("rtmp://localhost:1935/flippy").dispatch();
+			}
+			 
+			logger.logMessage("About to execute loginCommand", this);
 			
 			loginEvent = LoginEvent (event);
 			
-			logger.logMessage("userName: " + loginEvent.userName + "; pwd: " + loginEvent.password, getQualifiedClassName(this));
+			logger.logMessage("userName: " + loginEvent.userName + "; pwd: " + loginEvent.password, this);
 						
-			new LoginDelegate(this).validate(loginEvent.userName, loginEvent.password);			
+			new LoginDelegate(new Responder(result, fault)).validate(loginEvent.userName, loginEvent.password);				
 			
 		}
 		
-		public function result(event:Object):void
+		public function result(data:Object):void
 		{
-			logger.logMessage( "Got result in loginCommand", getQualifiedClassName(this));
-			
-			logger.logMessage( "result: " + event, getQualifiedClassName(this));
-			
-			logger.logMessage( "result.result: " + event.result, getQualifiedClassName(this));
+			logger.logMessage( "Got result in loginCommand: " + data, this);			
 			
 			var loginVO:LoginVO = null;
 			
-			if (event.result != "") {
-			    loginVO = new LoginVO(loginEvent.userName, loginEvent.password, event.result.roleName);
+			if (data != "") {
+			    loginVO = new LoginVO(loginEvent.userName, loginEvent.password, data.roleName, data.city, data.learningAge);
 			}						
 			
 			if (loginVO != null) {
 				
-				logger.logMessage( "valid user", getQualifiedClassName(this));												
+				logger.logMessage( "valid user", this);												
 				
+				// populate model
 				model.main.userName = loginVO.userName;
 				model.main.password = loginVO.password;				
 				model.main.role = loginVO.role;
+				model.main.learningAge = loginVO.learningAge;
+				model.main.city = loginVO.city;
 				
+				// init room
 				function resultHandler(data:Object):void
 				{
 					model.main.rooms = data as Array;
@@ -73,13 +76,11 @@ package com.flippy.fl.commands
 				
 				function faultHandler(info:Object):void
 				{
-					model.logger.logMessage("Got fault in getRoomList", getQualifiedClassName(this));
+					model.logger.logMessage("Got fault in getRoomList", this);
 				}
 				var requiredLearningAge:int = 3;
 				new RoomDelegate(new Responder(resultHandler, faultHandler)).getRoomList(requiredLearningAge);
 				
-				// init shared object
-				initRSO();
 			} else {
 				// animate login failed
 				if (loginEvent.loginBox != null) {
@@ -91,51 +92,10 @@ package com.flippy.fl.commands
 		
 		public function fault(event:Object):void 
 		{
-			logger.logMessage( "Got fault in loginCommand", getQualifiedClassName(this));
+			logger.logMessage( "Got fault in loginCommand", this);
 		}
 		
-		/** Question Shared Object */
-		public function initRSO():void {
-	      	// init shared object
-			logger.logMessage("init so", "SetupConnectionCommand");
-			
-	      	var so:SharedObject = null;
-	      	
-	      	so = SharedObject.getRemote("com.flippy.question", model.main.businessNc.uri);
-	      	// only add listener for author
-	      	if (model.main.role == model.main.ROLE_AUTHOR) {
-	      		logger.logMessage("author, listen to question changes", "SetupConnectionCommand");
-				so.addEventListener(SyncEvent.SYNC, questionSync);
-	      	} else {
-	      		logger.logMessage("role: " + model.main.role, "SetupConnectionCommand");
-	      	}
-			so.connect(model.main.businessNc);
-			
-			model.main.questionTextRSO = so;      	
-		}
 		
-		public function questionSync(event:SyncEvent):void {
-			logger.logMessage("question so SYNC", "SetupConnectionCommand");
-			
-			if (model.main.role == model.main.ROLE_AUTHOR) {
-			
-				var question:String = "";
-				
-				if (model.main.questionTextRSO.data.questionText != undefined || model.main.questionTextRSO.data.questionText != null) {
-					question = model.main.questionTextRSO.data.questionText;
-				}
-				
-				if (question != "") {
-					logger.logMessage("question so SYNC, data: " + model.main.questionTextRSO.data.questionText, "SetupConnectionCommand");
-					model.main.questionText += question;
-				} else {
-					logger.logMessage("null/undefined SYNC data", "SetupConnectionCommand");
-				}
-			} else {
-				// not author, can't view other question
-				logger.logMessage("not author, can't view other questions", "SetupConnectionCommand");
-			}
-		}
 		
 	}
 }
