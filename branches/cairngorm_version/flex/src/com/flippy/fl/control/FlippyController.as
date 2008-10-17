@@ -33,6 +33,12 @@ package com.flippy.fl.control
 			addCommand(ModifyRoomEvent.MODIFY_ROOM, ModifyRoomCommand);
 			addCommand(DeleteRoomEvent.DELETE_ROOM, DeleteRoomCommand);
 			addCommand(CancelSaveRoomEvent.CANCEL_SAVE_ROOM, CancelSaveRoomCommand);
+			
+			// chat
+			addCommand(ChatSetupEvent.SETUP, ChatSetupCommand);
+			addCommand(ChatBroadcastEvent.BROADCAST, ChatBroadcastCommand);
+			addCommand(ChatSendMessageEvent.SEND_MSG, ChatSendMessageCommand);
+			
 		}
 		
 	}

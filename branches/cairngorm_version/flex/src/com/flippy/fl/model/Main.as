@@ -1,8 +1,11 @@
 package com.flippy.fl.model
 {
 	import com.flippy.fl.business.NetConnectionDelegate;
+	import com.flippy.fl.view.ChatPanel;
 	
 	import flash.net.*;
+	
+	import mx.collections.GroupingCollection;
 		
 	public class Main
 	{
@@ -28,6 +31,10 @@ package com.flippy.fl.model
 		public var userName:String;
 		[Bindable]	
 		public var password:String;
+		[Bindable]
+		public var learningAge:int;
+		[Bindable]
+		public var city:String;
 		
 		// view state
 		[Bindable]	
@@ -74,6 +81,16 @@ package com.flippy.fl.model
 		[Bindable]
 		public var roomLearningAgeSelectedIndex:int = -1;
 		public var roomToEdit:Object;
+		
+		// chat
+		public var chatWindows:Array = new Array();
+		[Bindable]
+		public var userList:GroupingCollection = new GroupingCollection();
+		public var chatPanel:ChatPanel;
+		
+		// question box state
+		[Bindable]
+		public var userListRSO:SharedObject = null;
 		
 		public function Main()
 		{

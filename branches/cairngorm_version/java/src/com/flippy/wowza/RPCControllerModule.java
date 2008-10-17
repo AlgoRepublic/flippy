@@ -1,10 +1,9 @@
 package com.flippy.wowza;
 
+import com.flippy.wowza.chat.Chat;
 import com.flippy.wowza.login.Login;
 import com.flippy.wowza.member.MemberInfo;
 import com.flippy.wowza.question.Question;
-import com.flippy.wowza.room.RoomManagement;
-import com.flippy.wowza.chat.Chat;
 import com.wowza.wms.amf.AMFDataList;
 import com.wowza.wms.application.IApplicationInstance;
 import com.wowza.wms.client.IClient;
@@ -21,17 +20,17 @@ public class RPCControllerModule extends FlippyModuleBase implements IModuleOnCa
 		
 		if (method.equals("question.submit")) {
 			new Question().submitQuestion(client, function, params);
-		} else if (method.equals("chat.publish")) {
-			new Chat().publish(client, function, params);
-		} else if (method.equals("chat.subscribe")) {
-			new Chat().subscribe(client, function, params);
-		} else if (method.equals("chat.unSubscribe")) {
-			new Chat().unSubscribe(client, function, params);
-		} else if (method.equals("chat.sendChatRequest")) {
-			new Chat().sendChatRequest(client, function, params);
+		} else if (method.equals("chat.broadcast")) {
+			new Chat().broadcast(client, function, params);
+		} else if (method.equals("chat.login")) {
+			new Chat().login(client, function, params);
+		} else if (method.equals("chat.logout")) {
+			new Chat().logout(client, function, params);
+		} else if (method.equals("chat.sendMessage")) {
+			new Chat().sendMessage(client, function, params);
 		} else if (method.equals("chat.disableTopic")) {
-			new Chat().disableTopic(client, function, params);
-		} else if (method.equals("login")) {
+			new Chat().disableRoom(client, function, params);
+		} else if (method.equals("login.login")) {
 			Login.login(client, function, params);
 		} else if (method.equals("member.findByUserName")) {
 			new MemberInfo().findByUserName(client, function, params);
@@ -50,6 +49,7 @@ public class RPCControllerModule extends FlippyModuleBase implements IModuleOnCa
 		String fullname = appInstance.getApplication().getName() + "/"
 				+ appInstance.getName();
 		getLogger().info("onAppStop: " + fullname);
+		new Chat().onAppStop(appInstance);
 	}
 
 	public void onConnect(IClient client, RequestFunction function,
@@ -59,7 +59,7 @@ public class RPCControllerModule extends FlippyModuleBase implements IModuleOnCa
 
 	public void onDisconnect(IClient client) {
 		getLogger().info("onDisconnect: " + client.getClientId());
-		new Chat().unsubscribeFromAll(client);
+		Chat.cleanUpClient(client);
 	}
 
 }

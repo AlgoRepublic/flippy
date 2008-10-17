@@ -6,6 +6,9 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import mx.events.ListEvent;
+			import mx.collections.GroupingCollection;
+			import mx.collections.ArrayCollection;
 			import com.flippy.fl.model.FlippyModelLocator;
 			import flash.events.Event;
 			import flash.events.MouseEvent;
@@ -15,83 +18,76 @@
 			[Bindable]
 			public var model:FlippyModelLocator = FlippyModelLocator.getInstance();
 		
+			[Bindable]
+			public var users:GroupingCollection = model.main.userList;
+		
 			public function init():void {
-				var resp:Responder = new Responder(onResult, onStatus);
-				FlippyModelLocator.getInstance().logger.logMessage("member call","member info");
-				FlippyModelLocator.getInstance().main.businessNc.call("member.findByUserName", resp, model.main.userName);
+				
+			}
+		
+			public function showPopupMenu(event:MouseEvent):void {
+//				var myMenu:Menu = Menu.createMenu(null, myMenuData, false);
+//                myMenu.labelField="@label";
+//                myMenu.show(event.stageX,event.stageY);
+				Alert(userGrid.selectedItem.userName);                
 			}
 			
-			private function onResult(object:Object):void {
-				FlippyModelLocator.getInstance().logger.logMessage("result member info: " + object.city + "," + object.dtlastlogin + "," + object.userName + "," + object.roleName,"member info");
-			}
-	
-			private function onStatus(object:Object):void {			
-				FlippyModelLocator.getInstance().logger.logMessage("fault member info: " + object,"member info");
-			}
-	
-			
+			// --- chat method
 			public function sendChat():void {
-				cp.sendChatRequest(chatName.text);
-			}
-			
-			public function disableTopic():void {
-				cp.disableTopic("session1.public", "$flippy:sys$mendisable room ini");
+				var chatTo:String = chatName.text;
+				
+				model.logger.logMessage("about to chat to: " + chatTo, this);
+				
+				var cBox:ChatBox = (model.main.chatWindows[chatTo] as ChatBox);
+				if (cBox != null) {
+					
+				} else {
+					model.logger.logMessage("box not exists! create and give em message: " + chatTo, this);
+					// create new chatbox
+					cBox = model.main.chatPanel.addChatBox(chatTo, false);					
+				} 
 			}
 			
 			public function enableTopic():void {
-				cp.enableTopic("session1.public", "$flippy:sys$mengenable room ini");
-			}
-			
-			public function showPopupMenu(event:MouseEvent):void {
-				var myMenu:Menu = Menu.createMenu(null, myMenuData, false);
-                myMenu.labelField="@label";
-                myMenu.show(event.stageX,event.stageY);
 				
 			}
 			
-			public function rollOver(event:MouseEvent):void {
-				Label(event.target).setStyle("textDecoration","underline");
+			public function disableTopic():void {
+				
 			}
 			
-			public function rollOut(event:MouseEvent):void {
-				Label(event.target).setStyle("textDecoration","none");
+			public function expandAll():void {
+				userGrid.expandAll();
 			}
-			
-			
 			
 		]]>
 	</mx:Script>
 	<!-- Define the menu data. -->
 	<mx:XML format="e4x" id="myMenuData">
 		<root>
-			<menuitem label="MenuItem A" >
-				<menuitem label="SubMenuItem A-1" enabled="false"/>
-				<menuitem label="SubMenuItem A-2"/>
-			</menuitem>
-			<menuitem label="MenuItem B" type="check" toggled="true"/>
-			<menuitem label="MenuItem C" type="check" toggled="false"/>
-			<menuitem type="separator"/>     
-			<menuitem label="MenuItem D" >
-				<menuitem label="SubMenuItem D-1" type="radio" 
-					groupName="one"/>
-				<menuitem label="SubMenuItem D-2" type="radio" 
-					groupName="one" toggled="true"/>
-				<menuitem label="SubMenuItem D-3" type="radio" 
-					groupName="one"/>
-			</menuitem>
+			<menuitem label="Send Message">				
+			</menuitem>			
 		</root>
 	</mx:XML>
-	
+
 	<mx:HDividedBox width="100%" height="100%" >
 		<mx:VBox height="100%">
 			<mx:Panel width="100%" height="90%">
-				<mx:Label text="{model.main.sessionId}" click="showPopupMenu(event)" rollOver="rollOver(event)" rollOut="rollOut(event)"/>
+				<mx:Label text="{model.main.sessionId}"/>
 				<mx:Label text="{model.main.userName}"/>
 				<mx:Label text="{model.main.password}"/>
 				<mx:Label text="{model.main.role}"/>
+				<mx:AdvancedDataGrid id="userGrid" dataProvider="{users}" 
+					updateComplete="expandAll()" 
+					width="100%" height="100%"
+					click="showPopupMenu(event)" >
+					<mx:columns>
+						<mx:AdvancedDataGridColumn dataField="userName" headerText="Users"/>
+					</mx:columns>
+				</mx:AdvancedDataGrid>
 			</mx:Panel>
 			<mx:VBox>
-				<mx:VideoDisplay id="vdisp" />
+				<mx:VideoDisplay id="vdisp" width="128" height="160" />
 				<mx:HBox width="100%" >
 					<mx:Button label="Start Audio"/>
 					<mx:Button label="Stop Audio"/>
@@ -107,7 +103,7 @@
 			<mx:Button label="disable public" click="disableTopic()"/>
 			<mx:Button label="enable public" click="enableTopic()"/>
 			<mx:HBox width="100%">
-				<flippy:ChatPanel id="cp" sessionId="session1" from="{model.main.userName}" serverURL="rtmp://localhost:1935/flippy"/>	
+				<view:ChatPanel id="cp"/>	
 				<view:QuestionBox id="qb" enabled="{model.main.enableQuestionBox}"/>
 			</mx:HBox>
 		</mx:Panel>	

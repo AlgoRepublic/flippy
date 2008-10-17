@@ -47,11 +47,7 @@
 					
 					if (passwordValidator.validate().type == ValidationResultEvent.VALID) {
 											
-						if (!model.main.bncConnected) {
-							model.logger.logMessage("Opening new connection..", "Login.mxml");
-							new SetupConnectionEvent().dispatch();
-							new StartConnectionEvent("rtmp://localhost:1935/flippy").dispatch();
-						}
+						
 						new LoginEvent( txtUserName.text, txtPwd.text, this).dispatch();
 						
 						

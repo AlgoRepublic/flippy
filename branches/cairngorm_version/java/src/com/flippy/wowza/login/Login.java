@@ -15,8 +15,7 @@ public class Login extends FlippyModuleBase {
 		String userName = getParamString(params, PARAM1);
 		String password = getParamString(params, PARAM2);
 		
-        getLogger().info("login");
-        
+        getLogger().info("Login.login");
         getLogger().info("username: " + userName);
         getLogger().info("password: " + password);
         
@@ -30,6 +29,8 @@ public class Login extends FlippyModuleBase {
             ret.put("password", password);
             ret.put("roleId", Integer.parseInt(result.get("role_id").toString()));
             ret.put("roleName", (String)result.get("name"));
+            ret.put("learningAge", ((Integer)result.get("learning_age")).intValue());
+            ret.put("city", (String)result.get("city"));
 			sendResult(client, params, ret);
 		} else {
             getLogger().info("INVALID username and password");
