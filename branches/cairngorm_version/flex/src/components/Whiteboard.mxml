@@ -201,8 +201,8 @@
 			<mx:TextInput id="imageUrl" width="100%"/>
 			<mx:Button label="Show"/>
 		</mx:HBox>
-		<mx:HBox id="drawPaperBox" width="100%" height="100%" horizontalScrollPolicy="auto" verticalScrollPolicy="auto" clipContent="true" resize="paperResizeHandler()">
-			<paper:Paper id="drawPaper" width="100%" height="100%" focusEnabled="true"/>
+		<mx:HBox id="drawPaperBox" width="100%" height="100%" horizontalScrollPolicy="auto" verticalScrollPolicy="auto" clipContent="true">
+			<paper:Paper id="drawPaper" width="100%" height="100%" focusEnabled="true" resize="paperResizeHandler()"/>
 		</mx:HBox>
 	</mx:VBox>
 		
