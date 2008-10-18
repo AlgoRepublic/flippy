@@ -13,6 +13,7 @@ package com.flippy.fl.model
 		// public vars
 		public var businessNc:NetConnection;
 		public var bncDelegate:NetConnectionDelegate;
+		public var RTMP_URL:String = "rtmp://202.158.39.178:1935/flippy";
 		
 		[Bindable]	
 		/**
