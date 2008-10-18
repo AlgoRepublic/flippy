@@ -2,7 +2,7 @@
 <mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
          xmlns:flippy="components.*" 
 		 xmlns:view="com.flippy.fl.view.*" 
-		 width="100%" height="100%" creationComplete="init()">
+		 width="100%" height="100%">
 	
 	<mx:Script>
 		<![CDATA[
@@ -18,76 +18,13 @@
 		
 			[Bindable]
 			public var model:FlippyModelLocator = FlippyModelLocator.getInstance();
-		
-			[Bindable]
-			public var users:GroupingCollection = model.main.userList;
-		
-			public function init():void {
-				
-			}
-		
-			public function showPopupMenu(event:MouseEvent):void {
-//				var myMenu:Menu = Menu.createMenu(null, myMenuData, false);
-//                myMenu.labelField="@label";
-//                myMenu.show(event.stageX,event.stageY);
-				var destUserName:String = userGrid.selectedItem.userName;
-				if ( destUserName != model.main.userName && destUserName != null) {
-					sendChat(userGrid.selectedItem.userName);   
-				}             
-			}
-			
-			// --- chat method
-			public function sendChat(destUserName:String):void {
-				model.logger.logMessage("about to chat to: " + destUserName, this);
-				
-				var cBox:ChatBox = (model.main.chatWindows[destUserName] as ChatBox);
-				if (cBox != null) {
-					
-				} else {
-					model.logger.logMessage("box not exists! create and give em message: " + destUserName, this);
-					// create new chatbox
-					cBox = model.main.chatPanel.addChatBox(destUserName, false);					
-				} 
-			}
-			
-			public function enableTopic():void {
-				
-			}
-			
-			public function disableTopic():void {
-				
-			}
-			
-			public function expandAll():void {
-				userGrid.expandAll();
-			}
 			
 		]]>
 	</mx:Script>
-	<!-- Define the menu data. -->
-	<mx:XML format="e4x" id="myMenuData">
-		<root>
-			<menuitem label="Send Message">				
-			</menuitem>			
-		</root>
-	</mx:XML>
 
 	<mx:HDividedBox width="100%" height="100%" >
 		<mx:VBox height="100%">
-			<mx:Panel width="100%" height="90%" roundedBottomCorners="true">
-				<mx:Label text="{model.main.sessionId}"/>
-				<mx:Label text="{model.main.userName}"/>
-				<mx:Label text="{model.main.password}"/>
-				<mx:Label text="{model.main.role}"/>
-				<mx:AdvancedDataGrid id="userGrid" dataProvider="{users}" 
-					updateComplete="expandAll()" 
-					width="100%" height="100%"
-					click="showPopupMenu(event)" >
-					<mx:columns>
-						<mx:AdvancedDataGridColumn dataField="userName" headerText="Users"/>
-					</mx:columns>
-				</mx:AdvancedDataGrid>
-			</mx:Panel>
+			<view:UserListPanel width="100%" height="90%" roundedBottomCorners="true"/>
 			<mx:Panel width="100%" horizontalAlign="center" backgroundColor="#000000" roundedBottomCorners="true">
 				<mx:VideoDisplay id="vdisp" width="128" height="128" />
 				<mx:ControlBar>
@@ -98,8 +35,6 @@
 		</mx:VBox>
 		<mx:Panel width="80%" height="100%" roundedBottomCorners="true">
 			<flippy:Whiteboard serverUrl="rtmp://202.158.39.178:1935/flippy" height="70%" width="100%"/>
-			<mx:Button label="disable public" click="disableTopic()"/>
-			<mx:Button label="enable public" click="enableTopic()"/>
 			<mx:HBox width="100%">
 				<view:ChatPanel id="cp"/>	
 				<view:QuestionBox id="qb" enabled="{model.main.enableQuestionBox}"/>

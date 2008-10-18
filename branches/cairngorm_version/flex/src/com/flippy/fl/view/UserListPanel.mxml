@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" width="100%" height="100%" creationComplete="init()">
+	<mx:Script>
+		<![CDATA[
+			import com.flippy.fl.model.Logger;
+			import mx.events.MenuEvent;
+			import flash.sampler.getMemberNames;
+			import com.flippy.fl.model.Main;
+			import mx.events.ListEvent;
+			import mx.collections.GroupingCollection;
+			import mx.collections.ArrayCollection;
+			import com.flippy.fl.model.FlippyModelLocator;
+			import flash.events.Event;
+			import flash.events.MouseEvent;
+			import mx.containers.*;
+			import mx.controls.*;
+		
+			[Bindable]
+			public var model:FlippyModelLocator = FlippyModelLocator.getInstance();
+			public var logger:Logger = model.logger;
+		
+			[Bindable]
+			public var users:GroupingCollection = model.main.userList;
+			public var myMenu:Menu;
+			
+			public function init():void {
+				myMenu = Menu.createMenu(null, myMenuData, false);
+				myMenu.labelField = "@label";
+                myMenu.addEventListener(MenuEvent.ITEM_CLICK, menuClickHandler);
+			}
+		
+			public function showPopupMenu(event:ListEvent):void {
+				logger.logMessage("selected item: " + userGrid.selectedItem,this);
+				var destUserName:String = userGrid.selectedItem.userName;
+				if ( destUserName != model.main.userName && destUserName != null) {
+					logger.logMessage("myMenu: " + (myMenu == null), this);
+					logger.logMessage("selected menu: " + userGrid.selectedItem, this);
+					logger.logMessage("selected uname: " + userGrid.selectedItem.userName, this);
+					logger.logMessage("mouse pos: " + mouseX + "," + mouseY, this);
+					var point:Point = localToGlobal(new Point(mouseX, mouseY));
+					myMenu.show(point.x, point.y);
+				}
+			}
+			
+			public function menuClickHandler(event:MenuEvent):void {
+				if (event.label == "Send Message") {
+					sendChat(userGrid.selectedItem.userName);   
+				} else if (event.label == "Ban") {
+					Alert.show("ban not yet implemented");
+				}
+			}
+			
+			// --- chat method
+			public function sendChat(destUserName:String):void {
+				model.logger.logMessage("about to chat to: " + destUserName, this);
+				
+				var cBox:ChatBox = (model.main.chatWindows[destUserName] as ChatBox);
+				if (cBox != null) {
+					
+				} else {
+					model.logger.logMessage("box not exists! create and give em message: " + destUserName, this);
+					// create new chatbox
+					cBox = model.main.chatPanel.addChatBox(destUserName, false);					
+				} 
+			}
+			public function expandAll():void {
+				userGrid.expandAll();
+			}
+			
+			public function enableTopic():void {
+				
+			}
+			
+			public function disableTopic():void {
+				
+			}
+			
+			
+		]]>
+	</mx:Script>
+	
+	<mx:XML format="e4x" id="myMenuData">
+		<root>
+			<menuitem label="Send Message"/>
+			<menuitem label="Ban">
+				<menuitem label="This session only"/>
+				<menuitem label="Permanent"/>
+			</menuitem>				
+		</root>
+	</mx:XML>
+	
+	<mx:Label text="{model.main.sessionId}"/>
+	<mx:Label text="{model.main.userName}"/>
+	<mx:Label text="{model.main.password}"/>
+	<mx:Label text="{model.main.role}"/>
+	<mx:AdvancedDataGrid id="userGrid" dataProvider="{users}" 
+		updateComplete="expandAll()" 
+		width="100%" height="100%"
+		itemClick="showPopupMenu(event)" >
+		<mx:columns>
+			<mx:AdvancedDataGridColumn dataField="userName" headerText="Users"/>
+		</mx:columns>
+	</mx:AdvancedDataGrid>
+</mx:Panel>
