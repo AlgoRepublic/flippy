@@ -18,8 +18,10 @@
 			private var nc:NetConnection = null;
 			private var mySo:SharedObject = null;
 			private var rtmpUrl:String = "rtmp://202.158.39.178/flippy";
+			private var _sessionId:int;
 			
-			
+			private var _paperMask:Sprite = new Sprite();
+						
 			public function set serverUrl(url:String):void
 			{
 				rtmpUrl = url;
@@ -30,8 +32,19 @@
 				return rtmpUrl;
 			}
 			
+			public function set sessionId(val:int):void
+			{
+				_sessionId = val;
+			}
+			
+			public function get sessionId():int
+			{
+				return _sessionId;
+			}
+			
 			public function connect():void
 			{
+				
 				nc = new NetConnection();
 				nc.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
 				
@@ -62,9 +75,21 @@
 				if (event.info.code == "NetConnection.Connect.Success")
 				{
 					trace("Connected");
-					trace("Create connection to shared object...");
-					mySo.connect(nc);
-					drawPaper.drawablesSharedObject = mySo;
+					
+					function resultHandler(data:Object):void
+					{
+						trace("Succeed join session " + _sessionId);
+						trace("Create connection to shared object...");
+						mySo.connect(nc);
+						drawPaper.drawablesSharedObject = mySo;
+					}
+					
+					function statusHandler(info:Object):void
+					{
+						trace("Failed joining session " + _sessionId + ":" + info);
+					}
+					trace("Joining to session " + _sessionId);
+					nc.call("joinSession", new Responder(resultHandler, statusHandler), _sessionId);
 				}
 			}
 			
@@ -88,7 +113,25 @@
 			
 			private function init():void {
 				tools = new ArrayCollection([rectangleTool, ovalTool, lineTool, penTool]);
+				
+				// initialize paper mask
+				_paperMask.graphics.clear();
+				_paperMask.graphics.beginFill(0xFF0000, 1);
+				_paperMask.graphics.drawRect(0, 0, drawPaper.width, drawPaper.height);
+				_paperMask.graphics.endFill();
+				drawPaperBox.rawChildren.addChild(_paperMask);
+				drawPaper.mask = _paperMask;
+				
 				connect();
+			}
+			
+			private function paperResizeHandler():void
+			{
+				trace("Draw paper resized");
+				_paperMask.graphics.clear();
+				_paperMask.graphics.beginFill(0xFF0000, 1);
+				_paperMask.graphics.drawRect(0, 0, drawPaperBox.width, drawPaperBox.height);
+				_paperMask.graphics.endFill();
 			}
 			
 			private function selectATool(tool:Button):void {
@@ -158,7 +201,7 @@
 			<mx:TextInput id="imageUrl" width="100%"/>
 			<mx:Button label="Show"/>
 		</mx:HBox>
-		<mx:HBox width="100%" height="100%" horizontalScrollPolicy="auto" verticalScrollPolicy="auto">
+		<mx:HBox id="drawPaperBox" width="100%" height="100%" horizontalScrollPolicy="auto" verticalScrollPolicy="auto" clipContent="true" resize="paperResizeHandler()">
 			<paper:Paper id="drawPaper" width="100%" height="100%" focusEnabled="true"/>
 		</mx:HBox>
 	</mx:VBox>
