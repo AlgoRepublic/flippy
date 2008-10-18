@@ -31,7 +31,7 @@
 //                myMenu.labelField="@label";
 //                myMenu.show(event.stageX,event.stageY);
 				var destUserName:String = userGrid.selectedItem.userName;
-				if ( destUserName != model.main.userName ) {
+				if ( destUserName != model.main.userName && destUserName != null) {
 					sendChat(userGrid.selectedItem.userName);   
 				}             
 			}
@@ -74,7 +74,7 @@
 
 	<mx:HDividedBox width="100%" height="100%" >
 		<mx:VBox height="100%">
-			<mx:Panel width="100%" height="90%">
+			<mx:Panel width="100%" height="90%" roundedBottomCorners="true">
 				<mx:Label text="{model.main.sessionId}"/>
 				<mx:Label text="{model.main.userName}"/>
 				<mx:Label text="{model.main.password}"/>
@@ -96,7 +96,7 @@
 				</mx:ControlBar>
 			</mx:Panel>
 		</mx:VBox>
-		<mx:Panel width="80%" height="100%">
+		<mx:Panel width="80%" height="100%" roundedBottomCorners="true">
 			<flippy:Whiteboard serverUrl="rtmp://202.158.39.178:1935/flippy" height="70%" width="100%"/>
 			<mx:Button label="disable public" click="disableTopic()"/>
 			<mx:Button label="enable public" click="enableTopic()"/>
