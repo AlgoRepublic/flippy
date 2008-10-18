@@ -118,6 +118,11 @@
 				<Description>Flippy Room Management</Description>
 				<Class>com.flippy.wowza.room.RoomManagement</Class>
 			</Module>
+            <Module>
+                <Name>flippywhiteboard</Name>
+                <Description>Flippy Whieboard</Description>
+                <Class>com.flippy.wowza.whiteboard.Whiteboard</Class>
+            </Module>
 		</Modules>
 		<Properties>
 			<!-- Properties defined here will be added to the IApplication.getProperties() and IApplicationInstance.getProperties() collections -->
