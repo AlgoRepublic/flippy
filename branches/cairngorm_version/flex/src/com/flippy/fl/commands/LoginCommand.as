@@ -29,7 +29,7 @@ package com.flippy.fl.commands
 			if (!model.main.bncConnected) {
 				model.logger.logMessage("Opening new connection..", "Login.mxml");
 				new SetupConnectionEvent().dispatch();
-				new StartConnectionEvent("rtmp://localhost:1935/flippy").dispatch();
+				new StartConnectionEvent("rtmp://202.158.39.178:1935/flippy").dispatch();
 			}
 			 
 			logger.logMessage("About to execute loginCommand", this);

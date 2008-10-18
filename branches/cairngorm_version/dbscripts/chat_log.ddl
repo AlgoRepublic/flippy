@@ -1,4 +1,4 @@
-CREATE TABLE `flippy`.`fl_chat_log` (
+CREATE TABLE `fl_chat_log` (
   `id` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
   `session_id` VARCHAR(45) NOT NULL,
   `sender_name` VARCHAR(45) NOT NULL,
