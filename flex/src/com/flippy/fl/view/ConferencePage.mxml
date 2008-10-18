@@ -6,6 +6,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import com.flippy.fl.model.Main;
 			import mx.events.ListEvent;
 			import mx.collections.GroupingCollection;
 			import mx.collections.ArrayCollection;
@@ -29,22 +30,23 @@
 //				var myMenu:Menu = Menu.createMenu(null, myMenuData, false);
 //                myMenu.labelField="@label";
 //                myMenu.show(event.stageX,event.stageY);
-				Alert(userGrid.selectedItem.userName);                
+				var destUserName:String = userGrid.selectedItem.userName;
+				if ( destUserName != model.main.userName ) {
+					sendChat(userGrid.selectedItem.userName);   
+				}             
 			}
 			
 			// --- chat method
-			public function sendChat():void {
-				var chatTo:String = chatName.text;
+			public function sendChat(destUserName:String):void {
+				model.logger.logMessage("about to chat to: " + destUserName, this);
 				
-				model.logger.logMessage("about to chat to: " + chatTo, this);
-				
-				var cBox:ChatBox = (model.main.chatWindows[chatTo] as ChatBox);
+				var cBox:ChatBox = (model.main.chatWindows[destUserName] as ChatBox);
 				if (cBox != null) {
 					
 				} else {
-					model.logger.logMessage("box not exists! create and give em message: " + chatTo, this);
+					model.logger.logMessage("box not exists! create and give em message: " + destUserName, this);
 					// create new chatbox
-					cBox = model.main.chatPanel.addChatBox(chatTo, false);					
+					cBox = model.main.chatPanel.addChatBox(destUserName, false);					
 				} 
 			}
 			
@@ -86,20 +88,16 @@
 					</mx:columns>
 				</mx:AdvancedDataGrid>
 			</mx:Panel>
-			<mx:VBox>
-				<mx:VideoDisplay id="vdisp" width="128" height="160" />
-				<mx:HBox width="100%" >
+			<mx:Panel width="100%" horizontalAlign="center" backgroundColor="#000000" roundedBottomCorners="true">
+				<mx:VideoDisplay id="vdisp" width="128" height="128" />
+				<mx:ControlBar>
 					<mx:Button label="Start Audio"/>
 					<mx:Button label="Stop Audio"/>
-				</mx:HBox>
-			</mx:VBox>
+				</mx:ControlBar>
+			</mx:Panel>
 		</mx:VBox>
 		<mx:Panel width="80%" height="100%">
-			<flippy:Whiteboard serverUrl="rtmp://localhost:1935/flippy"  height="255" width="100%"/>
-			<mx:HBox>
-				<mx:Button label="chat to" click="sendChat()"/>
-				<mx:TextInput id="chatName" text="flippy"/>
-			</mx:HBox>
+			<flippy:Whiteboard serverUrl="rtmp://202.158.39.178:1935/flippy" height="70%" width="100%"/>
 			<mx:Button label="disable public" click="disableTopic()"/>
 			<mx:Button label="enable public" click="enableTopic()"/>
 			<mx:HBox width="100%">

@@ -17,7 +17,7 @@
 			// shared object
 			private var nc:NetConnection = null;
 			private var mySo:SharedObject = null;
-			private var rtmpUrl:String = "rtmp://localhost/flippy";
+			private var rtmpUrl:String = "rtmp://202.158.39.178/flippy";
 			
 			
 			public function set serverUrl(url:String):void

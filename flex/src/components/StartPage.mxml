@@ -38,7 +38,7 @@
 			<mx:Button label="disable public" click="disableTopic()"/>
 			<mx:Button label="enable public" click="enableTopic()"/>
 			<mx:HBox width="100%">
-				<flippy:ChatPanel id="cp" sessionId="session1" from="{loginInfo.userName}" serverURL="rtmp://localhost:1935/flippy"/>	
+				<flippy:ChatPanel id="cp" sessionId="session1" from="{loginInfo.userName}" serverURL="rtmp://202.158.39.178:1935/flippy"/>	
 				<flippy:QuestionBox id="qb"/>
 			</mx:HBox>
 		</mx:Panel>	

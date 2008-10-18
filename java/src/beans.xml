@@ -7,9 +7,9 @@
 
 	<!-- Data Source -->
     <bean id="dataSource" destroy-method="close" class="com.mysql.jdbc.jdbc2.optional.MysqlConnectionPoolDataSource">
-        <property name="url" value="jdbc:mysql://localhost/flippy"/>
-        <property name="user" value="root"/>
-        <property name="password" value="manager"/>
+        <property name="url" value="jdbc:mysql://localhost/dbtest"/>
+        <property name="user" value="conference"/>
+        <property name="password" value="abc0305"/>
     </bean>
 
     <bean id="ChatLogService" class="com.flippy.service.ChatLogDAOImpl">

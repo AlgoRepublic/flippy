@@ -1,4 +1,4 @@
-CREATE TABLE  `flippy`.`fl_questions_log` (
+CREATE TABLE  `fl_questions_log` (
   `id` int(10) unsigned NOT NULL auto_increment,
   `session_id` varchar(45) NOT NULL,
   `sender_name` varchar(45) NOT NULL,
