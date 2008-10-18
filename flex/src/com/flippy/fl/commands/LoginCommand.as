@@ -37,7 +37,7 @@ package com.flippy.fl.commands
 			loginEvent = LoginEvent (event);
 			
 			logger.logMessage("userName: " + loginEvent.userName + "; pwd: " + loginEvent.password, this);
-						
+			
 			new LoginDelegate(new Responder(result, fault)).validate(loginEvent.userName, loginEvent.password);				
 			
 		}
@@ -60,17 +60,33 @@ package com.flippy.fl.commands
 				model.main.userName = loginVO.userName;
 				model.main.password = loginVO.password;				
 				model.main.role = loginVO.role;
-				model.main.learningAge = loginVO.learningAge;
-				model.main.city = loginVO.city;
+				if (model.main.role == "author")
+				{
+					model.main.learningAge = 99;
+				}
+				else
+				{
+					model.main.learningAge = loginVO.learningAge;	
+				}
 				
+				model.main.city = loginVO.city;
+				trace("Learning age : " + model.main.learningAge);
 				// init room
 				function resultHandler(data:Object):void
 				{
 					model.main.rooms = data as Array;
 					model.logger.logMessage("Got result as list of room: size " + model.main.rooms.length, "LoginCommand");
 					
-					model.main.mainScreenState = model.main.MAIN_ROOM_SCREEN; // use this for member
-					//model.main.mainScreenState = model.main.MAIN_AUTHOR_SCREEN; // use this for author
+					if (model.main.role == "member")
+					{
+						
+						model.main.mainScreenState = model.main.MAIN_ROOM_SCREEN; // use this for member
+					}
+					else
+					{
+						// this should be author
+						model.main.mainScreenState = model.main.MAIN_AUTHOR_SCREEN; // use this for author
+					}
 					model.main.authorScreenState = model.main.AUTHOR_ROOM_SELECTION;
 				}
 				
@@ -78,8 +94,7 @@ package com.flippy.fl.commands
 				{
 					model.logger.logMessage("Got fault in getRoomList", this);
 				}
-				var requiredLearningAge:int = 3;
-				new RoomDelegate(new Responder(resultHandler, faultHandler)).getRoomList(requiredLearningAge);
+				new RoomDelegate(new Responder(resultHandler, faultHandler)).getRoomList(model.main.learningAge);
 				
 			} else {
 				// animate login failed
