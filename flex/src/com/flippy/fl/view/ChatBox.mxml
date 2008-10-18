@@ -59,16 +59,19 @@
 			
 			/** FROM SERVER **/
 			public function onBroadcastMessage(sessionId:int, userName:String, msg:String, date:Date):void {
-				txaChatBoard.htmlText += "<b>" + userName + ":</b> " + msg;
-				txaChatBoard.verticalScrollPosition = txaChatBoard.maxVerticalScrollPosition;
-				txaChatBoard.validateNow();
+				onMessage(sessionId, userName, msg, date);
 			}
 			
 			public function onMessage(sessionId:int, userName:String, msg:String, date:Date):void {
 				txaChatBoard.htmlText += "<b>" + userName + ":</b> " + msg;
-				txaChatBoard.verticalScrollPosition = txaChatBoard.maxVerticalScrollPosition;
 				txaChatBoard.validateNow();
+				callLater(scrollToEnd);
 			}
+			
+			public function scrollToEnd():void {
+				txaChatBoard.verticalScrollPosition = txaChatBoard.maxVerticalScrollPosition;
+			};
+				
 			
 		]]>
 	</mx:Script>

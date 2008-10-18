@@ -106,18 +106,9 @@
 				removeChatBox(this.getTabAt(event.tabIndex).label);
 			}
 			
-			public function removeChatBox(topic:String):void {
-				
-				trace("Removing chatbox with label: " + topic);
-				
-//				if (topic != null) {
-//					chatManager.unsubscribe(topic);
-//					
-//					boxList[topic] = null;
-//					trace("chat box for topic: " + topic + " was removed eveal("+boxList[topic]+")");
-//				} else {
-//					trace("chat box with label " + topic + " does not exists");
-//				}
+			public function removeChatBox(title:String):void {
+				logger.logMessage("Removing chatbox with label: " + title, this);
+				model.main.chatWindows[title] = null;
 			}
 			
 			
