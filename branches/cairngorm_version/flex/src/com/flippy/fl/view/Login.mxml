@@ -111,7 +111,7 @@
 		</mx:Sequence>
 	</mx:Parallel>
 	
-	<mx:Panel width="340" height="240" title="Login" id="loginPanel">
+	<mx:Panel width="340" height="240" title="Login" id="loginPanel" roundedBottomCorners="true">
 		<mx:Form>
 			<mx:FormItem label="User Name">
 				<mx:TextInput id="txtUserName" />
