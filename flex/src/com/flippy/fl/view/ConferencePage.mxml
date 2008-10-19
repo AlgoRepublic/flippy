@@ -34,7 +34,7 @@
 			</mx:Panel>
 		</mx:VBox>
 		<mx:Panel width="80%" height="100%" roundedBottomCorners="true">
-			<flippy:Whiteboard sessionId="{model.main.sessionId}" serverUrl="{model.main.RTMP_URL}" height="70%" width="100%"/>
+			<flippy:Whiteboard readOnly="{model.main.role != 'author'}" sessionId="{model.main.sessionId}" serverUrl="{model.main.RTMP_URL}" height="70%" width="100%"/>
 			<mx:HBox width="100%">
 				<view:ChatPanel id="cp"/>	
 				<view:QuestionBox id="qb" enabled="{model.main.enableQuestionBox}"/>
