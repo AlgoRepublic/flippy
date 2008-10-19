@@ -21,7 +21,7 @@
 			
 		-->
 		<Streams>
-			<StreamType>default</StreamType>
+			<StreamType>live-lowlatency</StreamType>
 			<StorageDir>${com.wowza.wms.AppHome}/content</StorageDir>
 			<Properties>
 				<!-- Properties defined here will override any properties defined in conf/Streams.xml for any streams types loaded by this application -->
