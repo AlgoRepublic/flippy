@@ -15,8 +15,11 @@ package com.flippy.fl.model
 		public var bncDelegate:NetConnectionDelegate;
 		public var RTMP_URL:String = "rtmp://202.158.39.178:1935/flippy";
 		//public var RTMP_URL:String = "rtmp://localhost:1935/flippy";
+		public var IMAGE_UPLOAD_URL:String = "http://202.158.39.178:8182/Flimage/upload.htm";
+		//public var IMAGE_UPLOAD_URL:String = "http://localhost:8080/Flimage/upload.htm";
+		public var IMAGE_URL:String = "http://202.158.39.178:8182/Flimage/image.htm";
+		//public var IMAGE_URL:String = "http://localhost:8080/Flimage/image.htm";
 		
-		[Bindable]	
 		/**
 		* Flag to check if there's a connection with the RTMP server.
 		*/		
@@ -39,7 +42,7 @@ package com.flippy.fl.model
 		public var city:String;
 		
 		// view state
-		[Bindable]	
+		[Bindable]
 		public var mainScreenState:uint = MAIN_LOGIN_SCREEN;
 		[Bindable]
 		public var authorScreenState:uint = AUTHOR_ROOM_SELECTION;

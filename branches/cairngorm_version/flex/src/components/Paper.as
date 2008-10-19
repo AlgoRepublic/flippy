@@ -54,12 +54,11 @@ package components
 			addEventListener(MouseEvent.MOUSE_OVER, mouseOverHandler);
 			addEventListener(MouseEvent.ROLL_OUT, rollOutHandler);
 			addEventListener(MouseEvent.ROLL_OVER, rollOverHandler);
+			
 		}
 		
-		public function set backgroundImageUrl(url:String):void
+		public function set backgroundImageUrlRequest(urlReq:URLRequest):void
 		{
-			_backgroundImageUrl = url;
-			
 			function completeLoaded(e:Event):void
 			{
 				trace("Loaded");
@@ -71,7 +70,14 @@ package components
 				repaintDrawables();
 			}
 			loader.contentLoaderInfo.addEventListener(Event.COMPLETE, completeLoaded);
-			loader.load(new URLRequest(url));
+			loader.load(urlReq);
+		}
+		
+		public function set backgroundImageUrl(url:String):void
+		{
+			_backgroundImageUrl = url;
+			
+			backgroundImageUrlRequest = new URLRequest(url);
 		}
 		
 		public function get backgroundImageUrl():String
