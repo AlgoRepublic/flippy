@@ -23,7 +23,82 @@
 			private var _readOnly:Boolean = false;
 			
 			private var _paperMask:Sprite = new Sprite();
-						
+			
+			private var fileRef:FileReference = new FileReference();
+			private var _imageUploadUrl:String;
+			private var _imageUrl:String;
+			
+			private function init():void {
+				tools = new ArrayCollection([rectangleTool, ovalTool, lineTool, penTool]);
+				
+				// initialize paper mask
+				_paperMask.graphics.clear();
+				_paperMask.graphics.beginFill(0xFF0000, 1);
+				_paperMask.graphics.drawRect(0, 0, drawPaper.width, drawPaper.height);
+				_paperMask.graphics.endFill();
+				drawPaperBox.rawChildren.addChild(_paperMask);
+				drawPaper.mask = _paperMask;
+				
+				connect();
+				
+				fileRef.addEventListener(Event.SELECT, selectFileHandler);
+				fileRef.addEventListener(Event.COMPLETE, uploadCompleteHandler);
+			}
+			
+			private function browseImageFile():void
+			{
+				var imageFileFilter:FileFilter = new FileFilter("Image files (*.jpg, *.jpeg, *.gif, *.png)", "*.jpg; *.jpeg; *.gif; *.png");
+				try
+				{
+					fileRef.browse(new Array(imageFileFilter));
+				}
+				catch (e:Error)
+				{
+					trace("Unable to browse file");
+				}
+			}
+			
+			private function uploadFile():void
+			{
+				var urlRequest:URLRequest = new URLRequest(_imageUploadUrl);
+				urlRequest.method = URLRequestMethod.POST;
+				urlRequest.data = new URLVariables("sessionId=" + _sessionId);
+				fileRef.upload(urlRequest, "imageFile");
+			}
+			
+			private function selectFileHandler(event:Event):void
+			{
+				trace("File selected");
+				imageFile.text = fileRef.name;
+			}
+			
+			private function uploadCompleteHandler(event:Event):void
+			{
+				trace("File upload '" + imageFile.text +  "' completed");
+				//var req:URLRequest = new URLRequest("http://localhost:8080/Flimage/image.htm?");
+				mySo.data["imageName"] = imageFile.text;
+				mySo.setDirty("imageName");
+			}
+			
+			public function set imageUploadUrl(url:String):void
+			{
+				_imageUploadUrl = url;
+			}
+			
+			public function get imageUploadUrl():String
+			{
+				return _imageUploadUrl;
+			}
+			
+			public function set imageUrl(url:String):void
+			{
+				_imageUrl = url;
+			}
+			
+			public function get imageUrl():String
+			{
+				return _imageUrl;
+			}
 			public function set serverUrl(url:String):void
 			{
 				rtmpUrl = url;
@@ -54,7 +129,7 @@
 				nc.connect(rtmpUrl);
 				
 				trace("Getting remote object from " + nc.uri);
-				mySo = SharedObject.getRemote("whiteboard", nc.uri);
+				mySo = SharedObject.getRemote("whiteboard_" + _sessionId, nc.uri);
 				mySo.addEventListener(SyncEvent.SYNC, soSyncHandler);
 				
 				
@@ -126,32 +201,39 @@
 			{
 				trace("Sync Event");
 				var changeList:Array = event.changeList;
+				var newImage:Boolean;
 				for (var i:int = 0; i < changeList.length; i++)
 				{
 					var info:Object = changeList[i];
-					trace("changed object [" + i + "]:name='" + info.name + "', code='" + info.code + "'"); 
+					trace("changed object [" + i + "]:name='" + info.name + "', code='" + info.code + "'");
+					if (info.name == "imageName")
+					{
+						newImage = info.code == "change" || info.code == "success";
+					}
+					trace("newImage=" + newImage);
 				}
 				
 				for (var p:Object in mySo.data)
 				{
 					trace("slotName='" + p + "', slotValue='" + mySo.data[p] + "'");
 				}
-				drawPaper.repaintDrawables();
-			}
-			
-			
-			private function init():void {
-				tools = new ArrayCollection([rectangleTool, ovalTool, lineTool, penTool]);
 				
-				// initialize paper mask
-				_paperMask.graphics.clear();
-				_paperMask.graphics.beginFill(0xFF0000, 1);
-				_paperMask.graphics.drawRect(0, 0, drawPaper.width, drawPaper.height);
-				_paperMask.graphics.endFill();
-				drawPaperBox.rawChildren.addChild(_paperMask);
-				drawPaper.mask = _paperMask;
+				if (newImage)
+				{
+					trace("Sync image");
+					//var req:URLRequest = new URLRequest("http://localhost:8080/Flimage/image.htm?");
+					var req:URLRequest = new URLRequest(_imageUrl + "?");
+					var urlVar:URLVariables = new URLVariables("sessionId=" + _sessionId +"&image=" + mySo.data["imageName"]);
+					req.data = urlVar;
+					trace("TRACE " + req.url);
+					drawPaper.backgroundImageUrlRequest = req;
+					imageFile.text = mySo.data["imageName"];
+				}
+				else
+				{
+					drawPaper.repaintDrawables();
+				}
 				
-				connect();
 			}
 			
 			private function paperResizeHandler():void
@@ -226,9 +308,9 @@
 			<mx:Button id="clearTool" click="drawPaper.clear()" height="29" icon="@Embed(source='../assets/eraser tool.svg')" label="Erase All" textAlign="left"/>
 		</mx:ApplicationControlBar>
 		<mx:HBox width="100%" id="imageUrlControlBox">
-			<mx:Label text="Image URL:"/>
-			<mx:TextInput id="imageUrl" width="100%"/>
-			<mx:Button label="Show" click="drawPaper.backgroundImageUrl=imageUrl.text"/>
+			<mx:Label text="Image :"/>
+			<mx:TextInput id="imageFile" click="browseImageFile()" editable="false" width="100%"/>
+			<mx:Button label="Show" click="uploadFile()"/>
 		</mx:HBox>
 		<mx:HBox id="drawPaperBox" width="100%" height="100%" horizontalScrollPolicy="auto" verticalScrollPolicy="auto" clipContent="true">
 			<paper:Paper id="drawPaper" width="100%" height="100%" focusEnabled="true" resize="paperResizeHandler()"/>
