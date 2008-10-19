@@ -70,6 +70,7 @@
 			{
 				trace("File selected");
 				imageFile.text = fileRef.name;
+				uploadFile();
 			}
 			
 			private function uploadCompleteHandler(event:Event):void
@@ -310,7 +311,7 @@
 		<mx:HBox width="100%" id="imageUrlControlBox">
 			<mx:Label text="Image :"/>
 			<mx:TextInput id="imageFile" click="browseImageFile()" editable="false" width="100%"/>
-			<mx:Button label="Show" click="uploadFile()"/>
+			<mx:Button label="Browse" click="browseImageFile()"/>
 		</mx:HBox>
 		<mx:HBox id="drawPaperBox" width="100%" height="100%" horizontalScrollPolicy="auto" verticalScrollPolicy="auto" clipContent="true">
 			<paper:Paper id="drawPaper" width="100%" height="100%" focusEnabled="true" resize="paperResizeHandler()"/>
