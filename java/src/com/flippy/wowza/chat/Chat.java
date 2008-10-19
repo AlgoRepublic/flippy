@@ -247,6 +247,9 @@ public class Chat extends FlippyModuleBase implements IModuleCallResult {
 			} else {
 				// show nothing
 			}
+			
+			removeFromUserListRSO(c, getUserRSOName(((Integer)c.get("sessionId")).intValue()));
+			
 			getLogger().debug("shutting down user: " + userName);
 			iClient.shutdownClient();
 			// clean up will be called on onDisconnect
@@ -264,9 +267,18 @@ public class Chat extends FlippyModuleBase implements IModuleCallResult {
 				String userName = (String)aClientMap.get("userName");
 				String aSoName = getUserRSOName(sessionId);
 				
-				mClientsIdx.remove(client.getClientId());
-				mClients.remove(userName);				
-				removeFromUserListRSO(aClientMap, aSoName);					
+				// check other connection with same username and sessionId
+				// if exists dont remove from mClients and RSO
+				Map<String, Object> other = mClients.get(userName);
+				
+				if(other != null && ((IClient)other.get("client")).getClientId() != client.getClientId()) {
+					// other member with same username already logged in
+					mClientsIdx.remove(client.getClientId());
+				} else {					
+					mClientsIdx.remove(client.getClientId());
+					mClients.remove(userName);				
+					removeFromUserListRSO(aClientMap, aSoName);					
+				}
 			} catch (Exception e) {
 				getLogger().error("Exception while removing client with id (" + client.getClientId() + ")", e);
 			}
