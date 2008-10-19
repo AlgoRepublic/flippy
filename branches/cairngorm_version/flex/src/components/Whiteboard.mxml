@@ -20,6 +20,8 @@
 			private var rtmpUrl:String = "rtmp://202.158.39.178/flippy";
 			private var _sessionId:int;
 			
+			private var _readOnly:Boolean = false;
+			
 			private var _paperMask:Sprite = new Sprite();
 						
 			public function set serverUrl(url:String):void
@@ -55,6 +57,33 @@
 				mySo = SharedObject.getRemote("whiteboard", nc.uri);
 				mySo.addEventListener(SyncEvent.SYNC, soSyncHandler);
 				
+				
+				if (drawPaper.readOnly != _readOnly)
+				{
+					if (_readOnly) {
+						trace("READONLY remove");
+						mainBox.removeChild(drawControlBox);
+						mainBox.removeChild(imageUrlControlBox);
+						drawPaper.readOnly = true;
+					}
+					else 
+					{
+						trace("READONLY add");
+						mainBox.addChildAt(imageUrlControlBox, 0);
+						mainBox.addChildAt(drawControlBox, 0);
+						drawPaper.readOnly = true;
+					}
+				}
+			}
+			
+			public function set readOnly(val:Boolean):void
+			{
+				_readOnly = val;
+			}
+			
+			public function get readOnly():Boolean
+			{
+				return _readOnly;
 			}
 			
 			public function disconnect():void
@@ -130,7 +159,7 @@
 				trace("Draw paper resized");
 				_paperMask.graphics.clear();
 				_paperMask.graphics.beginFill(0xFF0000, 1);
-				_paperMask.graphics.drawRect(0, 0, drawPaperBox.width, drawPaperBox.height);
+				_paperMask.graphics.drawRect(0, 0, drawPaper.width, drawPaper.height);
 				_paperMask.graphics.endFill();
 			}
 			
@@ -168,8 +197,8 @@
 		]]>
 	</mx:Script>
 	
-	<mx:VBox width="100%" height="100%">
-		<mx:ApplicationControlBar width="100%">
+	<mx:VBox id="mainBox" width="100%" height="100%">
+		<mx:ApplicationControlBar width="100%" id="drawControlBox" dock="true">
 			<mx:HBox>
 				<mx:Label text="Stroke"/>
 				<mx:ColorPicker change="strokeColorChanged(event)"/>
@@ -196,10 +225,10 @@
 			<mx:Button id="penTool" click="selectATool(penTool)" height="29" icon="@Embed(source='../assets/pen tool.svg')" label="Pen" textAlign="left"/>
 			<mx:Button id="clearTool" click="drawPaper.clear()" height="29" icon="@Embed(source='../assets/eraser tool.svg')" label="Erase All" textAlign="left"/>
 		</mx:ApplicationControlBar>
-		<mx:HBox width="100%">
+		<mx:HBox width="100%" id="imageUrlControlBox">
 			<mx:Label text="Image URL:"/>
 			<mx:TextInput id="imageUrl" width="100%"/>
-			<mx:Button label="Show"/>
+			<mx:Button label="Show" click="drawPaper.backgroundImageUrl=imageUrl.text"/>
 		</mx:HBox>
 		<mx:HBox id="drawPaperBox" width="100%" height="100%" horizontalScrollPolicy="auto" verticalScrollPolicy="auto" clipContent="true">
 			<paper:Paper id="drawPaper" width="100%" height="100%" focusEnabled="true" resize="paperResizeHandler()"/>

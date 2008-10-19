@@ -1,8 +1,12 @@
 package components
 {
+	import flash.display.Bitmap;
+	import flash.display.Loader;
+	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.geom.Rectangle;
 	import flash.net.SharedObject;
+	import flash.net.URLRequest;
 	
 	import mx.containers.Canvas;
 	
@@ -34,6 +38,11 @@ package components
 		private var seqNumber:int = 1;
 		//private var timer:Timer = new Timer(500);
 		// TODO uudashr: add different cursor based on the tools when entering the draw area
+		private var loader:Loader = new Loader();
+		private var bgImage:Bitmap = null;
+		private var _backgroundImageUrl:String;
+		
+		private var _readOnly:Boolean = false;
 		
 		public function Paper()
 		{
@@ -45,7 +54,39 @@ package components
 			addEventListener(MouseEvent.MOUSE_OVER, mouseOverHandler);
 			addEventListener(MouseEvent.ROLL_OUT, rollOutHandler);
 			addEventListener(MouseEvent.ROLL_OVER, rollOverHandler);
-			//timer.addEventListener(TimerEvent.TIMER, drawPenLine);
+		}
+		
+		public function set backgroundImageUrl(url:String):void
+		{
+			_backgroundImageUrl = url;
+			
+			function completeLoaded(e:Event):void
+			{
+				trace("Loaded");
+				bgImage = loader.contentLoaderInfo.content as Bitmap;
+				
+				width = bgImage.width;
+				height = bgImage.height;
+				
+				repaintDrawables();
+			}
+			loader.contentLoaderInfo.addEventListener(Event.COMPLETE, completeLoaded);
+			loader.load(new URLRequest(url));
+		}
+		
+		public function get backgroundImageUrl():String
+		{
+			return _backgroundImageUrl;
+		}
+		
+		public function set readOnly(val:Boolean):void
+		{
+			_readOnly = val;
+		}
+		
+		public function get readOnly():Boolean
+		{
+			return _readOnly;
 		}
 		
 		public function set drawablesSharedObject(dso:SharedObject):void
@@ -55,7 +96,10 @@ package components
 		
 		private function mouseOutHandler(event:MouseEvent):void
 		{
-			trace("Mouse Out");
+			if (_readOnly)
+			{
+				return;
+			}
 			var x:Number = event.localX;
 			var y:Number = event.localY;
 			if (x > width)
@@ -85,7 +129,10 @@ package components
 		
 		private function mouseOverHandler(event:MouseEvent):void
 		{
-			trace("Mouse Over");
+			if (_readOnly)
+			{
+				return;
+			}
 			if (!event.buttonDown)
 			{
 				addAndRemoveActiveDrawObject();
@@ -95,12 +142,12 @@ package components
 		
 		private function rollOutHandler(event:MouseEvent):void
 		{
-			trace("Roll Out");
+			//trace("Roll Out");
 		}
 		
 		private function rollOverHandler(event:MouseEvent):void
 		{
-			trace("Roll Over: " + event.buttonDown);
+			//trace("Roll Over: " + event.buttonDown);
 		}
 		
 		public function set tool(toolId:String):void
@@ -146,7 +193,10 @@ package components
 		
 		private function mouseDownHandler(event:MouseEvent):void
 		{
-			trace("mouseDown(" + event.localX + "," + event.localY + ") - " + activeToolId);
+			if (_readOnly)
+			{
+				return;
+			}
 			if (activeToolId == "rectangleTool")
 			{
 				activeDrawObject = {
@@ -193,23 +243,10 @@ package components
 		
 		private function mouseMoveHandler(event:MouseEvent):void
 		{
-			//trace("mouseMove(" + event.localX + "," + event.localY + ") - " + activeToolId);
-			/*
-			if (activeDrawObject == null) {
+			if (_readOnly)
+			{
 				return;
 			}
-			
-			if (activeDrawObject.type == "rectangle")
-			{
-				activeDrawObject.width = event.localX - activeDrawObject.x;
-				activeDrawObject.height = event.localY - activeDrawObject.y;
-			}
-			else if (activeDrawObject.type == "line")
-			{
-				activeDrawObject.endX = event.localX;
-				activeDrawObject.endY = event.localY;
-			}
-			*/
 			revalidateActiveDrawableObject(event.localX, event.localY);
 			repaintDrawables();
 		}
@@ -242,8 +279,10 @@ package components
 		}
 		
 		private function mouseUpHandler(event:MouseEvent):void {
-			trace("mouseUp(" + event.localX + "," + event.localY + ") - " + activeToolId);
-			//trace("Release Object: " + activeDrawObject.x + ", " + activeDrawObject.y + ", " + activeDrawObject.width + ", " + activeDrawObject.height);
+			if (_readOnly)
+			{
+				return;
+			}
 			revalidateActiveDrawableObject(event.localX, event.localY);
 			addAndRemoveActiveDrawObject();
 		}
@@ -283,6 +322,13 @@ package components
 		public function repaintDrawables():void
 		{
 			graphics.clear();
+			if (bgImage != null)
+			{
+				graphics.beginBitmapFill(bgImage.bitmapData);
+				graphics.drawRect(0, 0, width, height);
+				graphics.endFill();
+			}
+			
 			if (dso == null)
 			{
 				return;
