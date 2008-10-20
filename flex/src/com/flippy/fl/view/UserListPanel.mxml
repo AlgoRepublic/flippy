@@ -24,9 +24,11 @@
 			public var myMenu:Menu;
 			
 			public function init():void {
-				myMenu = Menu.createMenu(null, myMenuData, false);
-				myMenu.labelField = "@label";
-                myMenu.addEventListener(MenuEvent.ITEM_CLICK, menuClickHandler);
+				if (model.main.role == model.main.ROLE_AUTHOR) {
+					myMenu = Menu.createMenu(null, myMenuData, false);
+					myMenu.labelField = "@label";
+	                myMenu.addEventListener(MenuEvent.ITEM_CLICK, menuClickHandler);
+    			}
 			}
 		
 			public function showPopupMenu(event:ListEvent):void {
