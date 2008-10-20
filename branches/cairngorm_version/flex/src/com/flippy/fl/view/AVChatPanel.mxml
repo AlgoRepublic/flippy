@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:media="flash.media.*"
+	layout="vertical" width="100%" height="100%" 
+	horizontalAlign="center" verticalAlign="bottom" roundedBottomCorners="true" creationComplete="init()" 
+	xmlns:view="com.flippy.fl.view.*">
+	<mx:Script>
+		<![CDATA[
+			import com.flippy.fl.events.AudioChatEvent;
+			import mx.controls.Alert;
+			import mx.events.SliderEvent;
+			import mx.core.UIComponent;
+			import com.flippy.fl.model.Main;
+			import com.flippy.fl.model.Logger;
+			import com.flippy.fl.model.FlippyModelLocator;
+			import flash.net.*;
+			import flash.media.Video;
+			
+			[Bindable]
+			public var model:FlippyModelLocator = FlippyModelLocator.getInstance();
+			[Bindable]
+			public var main:Main = model.main;
+			public var logger:Logger = model.logger;
+			
+			[Bindable]
+			public var isAuthor:Boolean = (main.role == main.ROLE_AUTHOR);
+			[Bindable]
+			public var isStarted:Boolean = model.main.audioChatStarted;
+			
+			public function init():void {
+//				nc = new NetConnection();
+//				nc.connect(model.main.RTMP_URL);
+//				nc.addEventListener(NetStatusEvent.NET_STATUS, onStatus);
+			}
+						
+			
+			public function startAudioChat():void {
+				new AudioChatEvent(true).dispatch();
+			}
+			
+			public function stopAudioChat():void {
+				new AudioChatEvent(false).dispatch();
+			}
+		]]>
+	</mx:Script>
+	<view:SoundVisualizer id="vis"/>		
+	<mx:ControlBar>
+		<mx:HBox visible="{isAuthor}">
+			<mx:Button label="Start Audio" click="startAudioChat()" enabled="{!model.main.audioChatStarted}"/>
+			<mx:Button label="Stop Audio" click="stopAudioChat()" enabled="{model.main.audioChatStarted}"/>	
+		</mx:HBox>		
+	</mx:ControlBar>
+</mx:Panel>
