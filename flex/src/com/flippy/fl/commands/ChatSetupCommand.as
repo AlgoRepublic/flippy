@@ -24,6 +24,7 @@ package com.flippy.fl.commands
 
 	public class ChatSetupCommand implements ICommand
 	{		
+		[Bindable]
 		private var model:FlippyModelLocator = FlippyModelLocator.getInstance();		
 		private var logger:Logger = model.logger;
 		private var loginEvent:LoginEvent;		
@@ -47,6 +48,9 @@ package com.flippy.fl.commands
 				
 				// init question RSO
 				initRSO();
+				
+				// init audio chat RSO
+				initAudioChatRSO();
 				
 				model.main.mainScreenState = model.main.MAIN_CONFERENCE_SCREEN;
 			}
@@ -157,6 +161,37 @@ package com.flippy.fl.commands
 				// not author, can't view other question
 				logger.logMessage("not author, can't view other questions", "SetupConnectionCommand");
 			}
+		}
+		
+		/** AUDIO CHAT RSO **/
+		public function initAudioChatRSO():void {
+	      	// init shared object
+			logger.logMessage("init audio chat rso", this);
+			
+	      	var so:SharedObject = null;
+	      	so = SharedObject.getRemote("com.flippy.audioChat", model.main.businessNc.uri);
+	      	so.client = this;
+	      	
+	      	// only members need sync event
+	      	if (model.main.role != model.main.ROLE_AUTHOR) {
+	      		so.addEventListener(SyncEvent.SYNC, audioChatSync);
+	      	}
+	      	
+			so.connect(model.main.businessNc);
+			
+			model.main.audioChatRSO = so;      	
+		}
+		
+		public function audioChatSync(event:SyncEvent):void {
+			logger.logMessage("audio chat rso SYNC", this);			
+			
+			logger.logMessage("rso data: " + model.main.audioChatRSO.data.audioChatStarted, this);
+			
+			if (model.main.audioChatRSO.data.audioChatStarted != undefined || model.main.audioChatRSO.data.audioChatStarted != null) {
+				model.main.audioChatStarted = model.main.audioChatRSO.data.audioChatStarted;
+				new AudioChatEvent(model.main.audioChatStarted).dispatch();
+			}
+			
 		}
 		
 	}

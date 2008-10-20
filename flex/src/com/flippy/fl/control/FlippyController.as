@@ -39,6 +39,8 @@ package com.flippy.fl.control
 			addCommand(ChatBroadcastEvent.BROADCAST, ChatBroadcastCommand);
 			addCommand(ChatSendMessageEvent.SEND_MSG, ChatSendMessageCommand);
 			
+			// audio chat
+			addCommand(AudioChatEvent.STATUS, AudioChatStatusCommand);
 		}
 		
 	}

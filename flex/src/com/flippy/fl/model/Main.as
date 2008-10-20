@@ -3,6 +3,7 @@ package com.flippy.fl.model
 	import com.flippy.fl.business.NetConnectionDelegate;
 	import com.flippy.fl.view.ChatPanel;
 	
+	import flash.media.Microphone;
 	import flash.net.*;
 	
 	import mx.collections.GroupingCollection;
@@ -13,8 +14,8 @@ package com.flippy.fl.model
 		// public vars
 		public var businessNc:NetConnection;
 		public var bncDelegate:NetConnectionDelegate;
-		public var RTMP_URL:String = "rtmp://202.158.39.178:1935/flippy";
-		//public var RTMP_URL:String = "rtmp://localhost:1935/flippy";
+		//public var RTMP_URL:String = "rtmp://202.158.39.178:1935/flippy";
+		public var RTMP_URL:String = "rtmp://localhost:1935/flippy";
 		public var IMAGE_UPLOAD_URL:String = "http://202.158.39.178:8182/Flimage/upload.htm";
 		//public var IMAGE_UPLOAD_URL:String = "http://localhost:8080/Flimage/upload.htm";
 		public var IMAGE_URL:String = "http://202.158.39.178:8182/Flimage/image.htm";
@@ -92,6 +93,13 @@ package com.flippy.fl.model
 		[Bindable]
 		public var userList:GroupingCollection = new GroupingCollection();
 		public var chatPanel:ChatPanel;
+		
+		// audio chat		
+		public var audioChatRSO:SharedObject = null;
+		[Bindable]
+		public var audioChatStarted:Boolean = false;
+		public var audioStream:NetStream;
+		public var microphone:Microphone;
 		
 		// question box state
 		[Bindable]
