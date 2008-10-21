@@ -28,7 +28,7 @@
 	<mx:HDividedBox width="100%" height="100%" >
 		<mx:Panel height="100%" width="20%" id="leftPanel" roundedBottomCorners="true">
 			<view:UserListPanel/>
-			<view:AVChatControlBar/>			
+			<view:AVChatControlBar/>
 		</mx:Panel>
 		<mx:Panel width="80%" height="100%" roundedBottomCorners="true">
 			<flippy:Whiteboard readOnly="{model.main.role != 'author'}" 
@@ -39,7 +39,7 @@
 				height="70%" width="100%"/>
 			<mx:HBox width="100%">
 				<view:ChatPanel id="cp"/>	
-				<view:QuestionBox id="qb" enabled="{model.main.enableQuestionBox}"/>
+				<view:QuestionBox id="qb" enabled="{model.main.questionEnabled}"/>
 			</mx:HBox>
 		</mx:Panel>	
 	</mx:HDividedBox>
