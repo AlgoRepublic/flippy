@@ -93,10 +93,14 @@
 		</root>
 	</mx:XML>
 	
+	<!--
 	<mx:Label text="{model.main.sessionId}"/>
-	<mx:Label text="{model.main.userName}"/>
+	-->
+	<mx:Label text="{model.main.userName}" fontSize="12" fontWeight="bold"/>
+	<!--
 	<mx:Label text="{model.main.password}"/>
 	<mx:Label text="{model.main.role}"/>
+	-->
 	<mx:AdvancedDataGrid id="userGrid" dataProvider="{users}" 
 		updateComplete="expandAll()" 
 		width="100%" height="100%"
