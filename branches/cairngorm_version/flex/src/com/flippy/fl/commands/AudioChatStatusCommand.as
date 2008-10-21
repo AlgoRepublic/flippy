@@ -70,8 +70,8 @@ package com.flippy.fl.commands
 				}
 				
 				// update RSO
-				main.audioChatRSO.data["audioChatStarted"] = aChatEvent.started;
-				main.audioChatRSO.setDirty("audioChatStarted");
+				main.stateRSO.data["audioChatStarted"] = aChatEvent.started;
+				main.stateRSO.setDirty("audioChatStarted");
 				
 			} else {
 				if (aChatEvent.started) {

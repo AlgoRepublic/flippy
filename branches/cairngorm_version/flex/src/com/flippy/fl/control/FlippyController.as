@@ -24,6 +24,7 @@ package com.flippy.fl.control
 			
 			// question
 			addCommand(QuestionSubmitEvent.SUBMIT_QUESTION, QuestionSubmitCommand);
+			addCommand(QuestionStatusEvent.STATUS, QuestionStatusCommand);
 			
 			// room
 			addCommand(RoomChooseEvent.CHOOSE, RoomChooseCommand);

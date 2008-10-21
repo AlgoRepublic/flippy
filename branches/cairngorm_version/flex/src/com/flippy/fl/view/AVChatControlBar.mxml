@@ -8,6 +8,7 @@
 	xmlns:view="com.flippy.fl.view.*">
 	<mx:Script>
 		<![CDATA[
+			import com.flippy.fl.events.QuestionStatusEvent;
 			import com.flippy.fl.events.AudioChatEvent;
 			import mx.controls.Alert;
 			import mx.events.SliderEvent;
@@ -43,11 +44,25 @@
 			public function stopAudioChat():void {
 				new AudioChatEvent(false).dispatch();
 			}
+			
+			public function enableQuestion():void {
+				new QuestionStatusEvent(true).dispatch();
+			}
+			
+			public function disableQuestion():void {
+				new QuestionStatusEvent(false).dispatch();
+			}
 		]]>
 	</mx:Script>
-	<!--<view:SoundVisualizer id="vis"/>-->			
+	<!--<view:SoundVisualizer id="vis"/>-->
+	<mx:VBox>
 	<mx:HBox visible="{isAuthor}" horizontalAlign="center">
 		<mx:Button label="Start Audio" click="startAudioChat()" enabled="{!model.main.audioChatStarted}"/>
-		<mx:Button label="Stop Audio" click="stopAudioChat()" enabled="{model.main.audioChatStarted}"/>	
-	</mx:HBox>		
+		<mx:Button label="Stop Audio" click="stopAudioChat()" enabled="{model.main.audioChatStarted}"/>			
+	</mx:HBox>
+	<mx:HBox visible="{isAuthor}" horizontalAlign="center">
+		<mx:Button label="Enable Question" click="enableQuestion()" enabled="{!model.main.questionEnabled}"/>
+		<mx:Button label="Disable Question" click="disableQuestion()" enabled="{model.main.questionEnabled}"/>			
+	</mx:HBox>
+	</mx:VBox>
 </mx:ControlBar>

@@ -49,8 +49,8 @@ package com.flippy.fl.commands
 				// init question RSO
 				initRSO();
 				
-				// init audio chat RSO
-				initAudioChatRSO();
+				// init model RSO
+				initStateRSO();
 				
 				model.main.mainScreenState = model.main.MAIN_CONFERENCE_SCREEN;
 			}
@@ -163,33 +163,41 @@ package com.flippy.fl.commands
 			}
 		}
 		
-		/** AUDIO CHAT RSO **/
-		public function initAudioChatRSO():void {
+		/** STATE RSO **/
+		public function initStateRSO():void {
 	      	// init shared object
-			logger.logMessage("init audio chat rso", this);
+			logger.logMessage("init state rso", this);
 			
 	      	var so:SharedObject = null;
-	      	so = SharedObject.getRemote("com.flippy.audioChat", model.main.businessNc.uri);
+	      	so = SharedObject.getRemote("com.flippy.state", model.main.businessNc.uri);
 	      	so.client = this;
 	      	
 	      	// only members need sync event
 	      	if (model.main.role != model.main.ROLE_AUTHOR) {
-	      		so.addEventListener(SyncEvent.SYNC, audioChatSync);
+	      		so.addEventListener(SyncEvent.SYNC, stateSync);
 	      	}
 	      	
 			so.connect(model.main.businessNc);
 			
-			model.main.audioChatRSO = so;      	
+			model.main.stateRSO = so;      	
 		}
 		
-		public function audioChatSync(event:SyncEvent):void {
-			logger.logMessage("audio chat rso SYNC", this);			
+		public function stateSync(event:SyncEvent):void {
+			logger.logMessage("state rso SYNC", this);			
 			
-			logger.logMessage("rso data: " + model.main.audioChatRSO.data.audioChatStarted, this);
+			for (var o:Object in event) {
+				logger.logMessage("changing obj: " + o.name + ", status: " + o.code, this);
+			}
 			
-			if (model.main.audioChatRSO.data.audioChatStarted != undefined || model.main.audioChatRSO.data.audioChatStarted != null) {
-				model.main.audioChatStarted = model.main.audioChatRSO.data.audioChatStarted;
+			// update audio chat state
+			if (model.main.stateRSO.data.audioChatStarted != undefined || model.main.stateRSO.data.audioChatStarted != null) {
+				model.main.audioChatStarted = model.main.stateRSO.data.audioChatStarted;
 				new AudioChatEvent(model.main.audioChatStarted).dispatch();
+			}
+			
+			// update question status state
+			if (model.main.stateRSO.data.questionEnabled != undefined || model.main.stateRSO.data.questionEnabled != null) {
+				model.main.questionEnabled = model.main.stateRSO.data.questionEnabled;
 			}
 			
 		}

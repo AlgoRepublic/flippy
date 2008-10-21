@@ -69,7 +69,7 @@ package com.flippy.fl.model
 		
 		// question box state
 		[Bindable]
-		public var enableQuestionBox:Boolean = true;
+		public var questionEnabled:Boolean = false;
 		[Bindable]
 		public var questionTextRSO:SharedObject = null;
 		[Bindable]
@@ -95,7 +95,7 @@ package com.flippy.fl.model
 		public var chatPanel:ChatPanel;
 		
 		// audio chat		
-		public var audioChatRSO:SharedObject = null;
+		public var stateRSO:SharedObject = null;
 		[Bindable]
 		public var audioChatStarted:Boolean = false;
 		public var audioStream:NetStream;
