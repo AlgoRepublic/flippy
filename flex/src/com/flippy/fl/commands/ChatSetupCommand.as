@@ -106,13 +106,15 @@ package com.flippy.fl.commands
 				var userName:String = String(u);
 				var city:String = String(model.main.userListRSO.data[u].city);
 
-				var obj:Object = new Object();
-				obj["userName"] = userName;
-				obj["city"] = city;
-
-				(list.source as ArrayCollection).addItem(obj);
-
-				logger.logMessage("slotName='" + userName + "', slotValue='" + city+ "'", this);
+				if (userName != model.main.userName) {
+					var obj:Object = new Object();
+					obj["userName"] = userName;
+					obj["city"] = city;
+	
+					(list.source as ArrayCollection).addItem(obj);
+	
+					logger.logMessage("slotName='" + userName + "', slotValue='" + city+ "'", this);
+				}
 				
 			}
 			
