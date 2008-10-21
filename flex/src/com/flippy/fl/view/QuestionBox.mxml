@@ -2,58 +2,76 @@
 <mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" 
          paddingLeft="5" paddingRight="5" paddingTop="5" paddingBottom="5" 
 		 creationComplete="init()" >
+		 
+	<mx:Script>
+		<![CDATA[
+		
+			import com.flippy.fl.model.*;
+			import com.flippy.fl.events.*;
+			import mx.controls.Alert;
+			
+			[Bindable]
+			private var model:FlippyModelLocator = FlippyModelLocator.getInstance();
+			[Bindable]
+			private var isAuthor:Boolean = model.main.role == model.main.ROLE_AUTHOR;
+			
+			
+			private function init():void {	
+				if (model.main.role == model.main.ROLE_AUTHOR) {
+					// hide input box
+					inputBox.visible = false;
+					inputBox.includeInLayout = false;
+				}
+			}
+		
+			private function keyEventHandler(event:KeyboardEvent):void {
+				if (event.keyCode == Keyboard.ENTER) {						
+					sendMessage();
+				}
+			}
+			
+			private function sendMessage():void {
+				model.logger.logMessage("About to dispatch QuestionSubmitEvent", "QuestionBox.mxml");
+				var event:QuestionSubmitEvent = new QuestionSubmitEvent(model.main.sessionId, model.main.userName, txtQuestionInput.text, model.main.role);
+				
+				// clean up
+				callLater(
+					function doLater():void {
+						txtQuestionInput.text = "";
+						txtQuestionInput.htmlText = "";
+					}
+				);
+				
+				event.dispatch();					
+			}
+			
+			private function updateScroll(event:Event):void {
+				var ta:TextArea = TextArea(event.target);
+				ta.verticalScrollPosition = ta.maxVerticalScrollPosition;
+				//ta.invalidateProperties();						
+			}
+			
+			public function enableQuestion():void {
+				new QuestionStatusEvent(true).dispatch();
+			}
+			
+			public function disableQuestion():void {
+				new QuestionStatusEvent(false).dispatch();
+			}
+		]]>
+	</mx:Script>
+
+		 
 	<mx:ApplicationControlBar width="100%" shadowDistance="0.5" dock="true" paddingBottom="0">
+		<mx:HBox horizontalAlign="center" width="100%">
 		<mx:Label text="Questions Area"/>
+		<mx:Spacer width="100%"/>
+		<mx:Button label="Enable Question" click="enableQuestion()" enabled="{!model.main.questionEnabled}" visible="{isAuthor}"/>
+		<mx:Button label="Disable Question" click="disableQuestion()" enabled="{model.main.questionEnabled}" visible="{isAuthor}"/>			
+		</mx:HBox>
 	</mx:ApplicationControlBar>
 	<mx:VDividedBox width="100%">	
-		<mx:Script>
-			<![CDATA[
-			
-				import com.flippy.fl.model.*;
-				import com.flippy.fl.events.*;
-				import mx.controls.Alert;
-				
-				[Bindable]
-				private var model:FlippyModelLocator = FlippyModelLocator.getInstance();
-				
-				
-				private function init():void {	
-					if (model.main.role == model.main.ROLE_AUTHOR) {
-						// hide input box
-						inputBox.visible = false;
-						inputBox.includeInLayout = false;
-					}
-				}
-			
-				private function keyEventHandler(event:KeyboardEvent):void {
-					if (event.keyCode == Keyboard.ENTER) {						
-						sendMessage();
-					}
-				}
-				
-				private function sendMessage():void {
-					model.logger.logMessage("About to dispatch QuestionSubmitEvent", "QuestionBox.mxml");
-					var event:QuestionSubmitEvent = new QuestionSubmitEvent(model.main.sessionId, model.main.userName, txtQuestionInput.text, model.main.role);
-					
-					// clean up
-					callLater(
-						function doLater():void {
-							txtQuestionInput.text = "";
-							txtQuestionInput.htmlText = "";
-						}
-					);
-					
-					event.dispatch();					
-				}
-				
-				private function updateScroll(event:Event):void {
-					var ta:TextArea = TextArea(event.target);
-					ta.verticalScrollPosition = ta.maxVerticalScrollPosition;
-					//ta.invalidateProperties();						
-				}
-			]]>
-		</mx:Script>
-	
+		
 		<mx:TextArea width="100%" height="70%" editable="false" wordWrap="true" id="txaQuestionList" minHeight="50" htmlText="{model.main.questionText}" updateComplete="updateScroll(event)"/>
 		<mx:HBox width="100%" minHeight="50" id="inputBox">
 			<mx:TextArea width="100%" height="95%" id="txtQuestionInput" keyDown="keyEventHandler(event)" wordWrap="true"  />
