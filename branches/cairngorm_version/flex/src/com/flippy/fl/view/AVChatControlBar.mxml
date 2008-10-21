@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:media="flash.media.*"
-	layout="vertical" width="100%" height="100%" 
-	horizontalAlign="center" verticalAlign="bottom" roundedBottomCorners="true" creationComplete="init()" 
+<mx:ControlBar xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:media="flash.media.*"
+	width="100%" height="100%" 
+	horizontalAlign="center" 
+	verticalAlign="bottom" 
+	creationComplete="init()" 
 	xmlns:view="com.flippy.fl.view.*">
 	<mx:Script>
 		<![CDATA[
@@ -42,11 +45,9 @@
 			}
 		]]>
 	</mx:Script>
-	<!--<view:SoundVisualizer id="vis"/>-->		
-	<mx:ControlBar>
-		<mx:HBox visible="{isAuthor}">
-			<mx:Button label="Start Audio" click="startAudioChat()" enabled="{!model.main.audioChatStarted}"/>
-			<mx:Button label="Stop Audio" click="stopAudioChat()" enabled="{model.main.audioChatStarted}"/>	
-		</mx:HBox>		
-	</mx:ControlBar>
-</mx:Panel>
+	<!--<view:SoundVisualizer id="vis"/>-->			
+	<mx:HBox visible="{isAuthor}" horizontalAlign="center">
+		<mx:Button label="Start Audio" click="startAudioChat()" enabled="{!model.main.audioChatStarted}"/>
+		<mx:Button label="Stop Audio" click="stopAudioChat()" enabled="{model.main.audioChatStarted}"/>	
+	</mx:HBox>		
+</mx:ControlBar>
