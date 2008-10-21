@@ -76,7 +76,7 @@ package com.flippy.fl.commands
 			} else {
 				if (aChatEvent.started) {
 					logger.logMessage("New Stream available", this);
-					// play stream				
+					// play stream
 					main.audioStream = new NetStream(main.businessNc);
 					main.audioStream.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
 					main.audioStream.addEventListener(NetStatusEvent.NET_STATUS, onNetStatus);
@@ -97,41 +97,15 @@ package com.flippy.fl.commands
 		public function onNetStatus(event:NetStatusEvent):void {
 			var statusCode : String = event.info.code;
 				
+				model.logger.logMessage("onNetStatus: " + statusCode, this) ;
+				
 				switch ( statusCode ) 
 				{
-					case "NetConnection.Connect.Success" :											
-						// Change the label of the Button so the connection can be closed.
-						model.logger.logMessage("Connected to server", this) ;																		
-						break;
 					case "NetStream.Play.StreamNotFound":
 						
 						model.logger.logMessage(statusCode, this) ;
 						break;
 						
-					case "NetConnection.Connect.Failed" :
-						//
-						model.logger.logMessage(statusCode, this) ;
-						break;
-						
-					case "NetConnection.Connect.Closed" :
-					
-						model.logger.logMessage(statusCode, this) ;
-						break;
-						
-					case "NetConnection.Connect.InvalidApp" :
-						//
-						model.logger.logMessage(statusCode, this) ;
-						break;
-						
-					case "NetConnection.Connect.AppShutDown" :
-						//
-						model.logger.logMessage(statusCode, this) ;
-						break;
-						
-					case "NetConnection.Connect.Rejected" :
-						//
-						model.logger.logMessage(statusCode, this) ;
-						break;			
 					default :
 					   // statements
 					   break;

@@ -42,7 +42,7 @@
 			}
 		]]>
 	</mx:Script>
-	<view:SoundVisualizer id="vis"/>		
+	<!--<view:SoundVisualizer id="vis"/>-->		
 	<mx:ControlBar>
 		<mx:HBox visible="{isAuthor}">
 			<mx:Button label="Start Audio" click="startAudioChat()" enabled="{!model.main.audioChatStarted}"/>
