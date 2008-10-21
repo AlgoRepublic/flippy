@@ -39,7 +39,7 @@
 				height="70%" width="100%"/>
 			<mx:HBox width="100%">
 				<view:ChatPanel id="cp"/>	
-				<view:QuestionBox id="qb" enabled="{model.main.questionEnabled}"/>
+				<view:QuestionBox id="qb" enabled="{(model.main.role != model.main.ROLE_AUTHOR)? model.main.questionEnabled : true}"/>
 			</mx:HBox>
 		</mx:Panel>	
 	</mx:HDividedBox>
