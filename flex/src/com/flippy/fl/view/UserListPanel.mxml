@@ -100,7 +100,7 @@
 	<mx:AdvancedDataGrid id="userGrid" dataProvider="{users}" 
 		updateComplete="expandAll()" 
 		width="100%" height="100%"
-		itemClick="showPopupMenu(event)" >
+		itemClick="showPopupMenu(event)">
 		<mx:columns>
 			<mx:AdvancedDataGridColumn dataField="userName" headerText="Users"/>
 		</mx:columns>

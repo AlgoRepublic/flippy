@@ -27,7 +27,7 @@ public class ChatLogDAOImpl implements ChatLogDAO {
 		simpleJdbcTemplate = new SimpleJdbcTemplate(dataSource);
 		insertLog = new SimpleJdbcInsert(dataSource)
 		            .withTableName("fl_chat_log")
-		            .usingColumns("session_id", "sender_name","dest_name", "topic", "message", "timestamp")
+		            .usingColumns("session_id", "sender_name","dest_name", "message", "timestamp", "client_timestamp")
 				    .usingGeneratedKeyColumns("id");
 		
 		DataSourceTransactionManager ptm = new DataSourceTransactionManager(dataSource);
@@ -36,7 +36,7 @@ public class ChatLogDAOImpl implements ChatLogDAO {
 	
 	@Override
 	public List<ChatLog> getBySender(String senderUserName) {
-		String sql = "select id, session_id, sender_name, dest_name, topic, message, timestamp from fl_chat_log where sender_name=?";
+		String sql = "select id, session_id, sender_name, dest_name, message, timestamp, client_timestamp from fl_chat_log where sender_name=?";
 		
 		ParameterizedRowMapper<List<ChatLog>> mapper = new ParameterizedRowMapper<List<ChatLog>>() {
 
@@ -51,7 +51,7 @@ public class ChatLogDAOImpl implements ChatLogDAO {
 					cl.setSessionId(rs.getString("session_id"));
 					cl.setSenderUserName(rs.getString("sender_name"));
 					cl.setDestinationUserName(rs.getString("dest_name"));
-					cl.setTopic(rs.getString("topic"));
+					cl.setClientTimestamp(rs.getTimestamp("client_timestamp"));
 					cl.setMessage(rs.getString("message"));
 					cl.setTimestamp(rs.getTimestamp("timestamp"));
 					
@@ -77,13 +77,13 @@ public class ChatLogDAOImpl implements ChatLogDAO {
 	@Override
 	public int writeLog(String destinationUserName, String message,
 			String senderUserName, String sessionId, Date timestamp,
-			String topic) {
+			Date clientTimestamp) {
 		
 		HashMap<String, Object> params = new HashMap<String, Object>(6);
 		params.put("session_id", sessionId);
 		params.put("sender_name", senderUserName);
 		params.put("dest_name", destinationUserName);
-		params.put("topic", topic);
+		params.put("client_timestamp", clientTimestamp);
 		params.put("message", message);
 		params.put("timestamp", timestamp!=null?timestamp:new Date());
 		

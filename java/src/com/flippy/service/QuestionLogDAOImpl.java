@@ -9,11 +9,14 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.apache.log4j.Logger;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
+
+import sun.security.action.GetLongAction;
 
 import com.flippy.domain.QuestionLog;
 
@@ -116,7 +119,11 @@ public class QuestionLogDAOImpl implements QuestionLogDAO {
 	@Override
 	public int writeLog(String sessionId, String senderUserName,
 			String question, Date timestamp) {
-
+		
+		Logger logger = Logger.getLogger(QuestionLogDAOImpl.class);
+		
+		logger.debug("writelog("+ sessionId + ", " + senderUserName + ", " + question + ", " + timestamp);
+		
 		HashMap<String, Object> params = new HashMap<String, Object>(6);
 		params.put("session_id", sessionId);
 		params.put("sender_name", senderUserName);

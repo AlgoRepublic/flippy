@@ -6,6 +6,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
+import com.flippy.service.ChatLogService;
 import com.flippy.wowza.FlippyModuleBase;
 import com.wowza.wms.amf.AMFDataList;
 import com.wowza.wms.amf.AMFDataObj;
@@ -100,6 +101,7 @@ public class Chat extends FlippyModuleBase implements IModuleCallResult {
 		ISharedObject so = getAppInstance(client).getSharedObjects(false).get(getUserRSOName(sessionId));
 		if (so != null) {
 			so.send("onBroadcastMessage", sessionId, userName, msg, date);
+			ChatLogService.writeLog("public chat", msg, userName, String.valueOf(sessionId), new Date(), date);
 		} else {
 			getLogger().error("Could not broadcast: Null RSO");
 		}
@@ -129,10 +131,11 @@ public class Chat extends FlippyModuleBase implements IModuleCallResult {
 			boolean senderBanned = false; // TODO: implements banning
 			if (! senderBanned) {
 				IClient dc = (IClient) destClient.get("client");
-				dc.call("onChatMessage", this, sessionId, userName, msg, date, false);
+				dc.call("onChatMessage", this, sessionId, userName, msg, date, false);				
 			} else {
 				getLogger().debug("sender is banned by dest");
 			}
+			ChatLogService.writeLog(destUserName, msg, userName, String.valueOf(sessionId), new Date(), date);
 		}
 		
 	}

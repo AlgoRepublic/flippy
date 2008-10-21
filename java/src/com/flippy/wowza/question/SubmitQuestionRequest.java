@@ -46,4 +46,9 @@ public class SubmitQuestionRequest extends FlippyBaseRequest {
 		this.question = question;
 	}
 	
+	@Override
+	public String toString() {		
+		return "{uname="+userName+";q=" + question + ";sid="+getSessionId()+"}";
+	}
+	
 }
