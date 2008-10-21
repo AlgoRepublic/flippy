@@ -7,9 +7,9 @@ public class ChatLog {
 	private String sessionId;
 	private String senderUserName;
 	private String destinationUserName;
-	private String topic;
 	private String message;
 	private Date timestamp;
+	private Date clientTimestamp;
 	
 	public ChatLog() {
 		super();
@@ -17,7 +17,7 @@ public class ChatLog {
 	
 	public ChatLog(int id, String destinationUserName, String message,
 			String senderUserName, String sessionId, Date timestamp,
-			String topic) {
+			Date clientTimestamp) {
 		super();
 		this.id = id;
 		this.destinationUserName = destinationUserName;
@@ -25,7 +25,7 @@ public class ChatLog {
 		this.senderUserName = senderUserName;
 		this.sessionId = sessionId;
 		this.timestamp = timestamp;
-		this.topic = topic;
+		this.clientTimestamp = clientTimestamp;
 	}
 
 	/**
@@ -80,18 +80,6 @@ public class ChatLog {
 		this.destinationUserName = destinationUserName;
 	}
 	/**
-	 * @return the topic
-	 */
-	public String getTopic() {
-		return topic;
-	}
-	/**
-	 * @param topic the topic to set
-	 */
-	public void setTopic(String topic) {
-		this.topic = topic;
-	}
-	/**
 	 * @return the message
 	 */
 	public String getMessage() {
@@ -116,9 +104,19 @@ public class ChatLog {
 		this.timestamp = timestamp;
 	}
 	
+	public Date getClientTimestamp() {
+		return clientTimestamp;
+	}
+
+	public void setClientTimestamp(Date aClientTimestamp) {
+		clientTimestamp = aClientTimestamp;
+	}
+
+
+	
 	@Override
 	public String toString() {
-		return "{id=" + id + ";session_id=" + sessionId + ";sender="+senderUserName+";dest="+ destinationUserName+";topic="+topic+";message="+message+";timestamp="+timestamp+"}";
+		return "{id=" + id + ";session_id=" + sessionId + ";sender="+senderUserName+";dest="+ destinationUserName+";message="+message+";timestamp="+timestamp+";ctimestamp="+clientTimestamp+"}";
 	}
 	
 	

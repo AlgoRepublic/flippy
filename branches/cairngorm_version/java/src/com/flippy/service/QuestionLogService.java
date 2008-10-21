@@ -28,7 +28,7 @@ public class QuestionLogService {
 			String question, Date timestamp) {
 
 		ApplicationContext ctx = ServiceManager.getInstance().getContext();
-
+		
 		return ((QuestionLogDAOImpl) ctx.getBean("QuestionLogService"))
 				.writeLog(sessionId, senderUserName, question, timestamp);
 	}

@@ -18,13 +18,13 @@ public class ChatLogService {
 
 	public static int writeLog(String destinationUserName, String message,
 			String senderUserName, String sessionId, Date timestamp,
-			String topic) {
+			Date clientTimestamp) {
 
 		ApplicationContext ctx = ServiceManager.getInstance().getContext();
 
 		return ((ChatLogDAOImpl) ctx.getBean("ChatLogService")).writeLog(
 				destinationUserName, message, senderUserName, sessionId,
-				timestamp, topic);
+				timestamp, clientTimestamp);
 	}
 
 	public static void main(String[] args) {

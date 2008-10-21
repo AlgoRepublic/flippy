@@ -8,7 +8,7 @@ import com.flippy.domain.ChatLog;
 public interface ChatLogDAO {
 	int writeLog(String destinationUserName, String message,
 			String senderUserName, String sessionId, Date timestamp,
-			String topic);
+			Date clientTimestamp);
 	
 	List<ChatLog> getBySender(String senderUserName);
 }

@@ -24,6 +24,8 @@ public class Question extends FlippyModuleBase implements IModuleCallResult {
 		
 		SubmitQuestionRequest cc = getSubmitQuestionRequest(client, function, params);
 		
+		getLogger().debug("got question: " + cc);
+		
 		int affected = QuestionLogService.writeLog(cc.getSessionId(), cc.getUserName(), cc.getQuestion(), new Date());
 		
 		if (affected > 0) {
@@ -37,7 +39,7 @@ public class Question extends FlippyModuleBase implements IModuleCallResult {
 	
 	public static SubmitQuestionRequest getSubmitQuestionRequest(IClient client, RequestFunction function,
 			AMFDataList params) {
-		SubmitQuestionRequest cc = new SubmitQuestionRequest();
+		SubmitQuestionRequest cc = new SubmitQuestionRequest();				
 		
 		cc.setId(String.valueOf(client.getClientId()));
 		cc.setClient(client);
