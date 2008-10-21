@@ -32,15 +32,17 @@
 			}
 		
 			public function showPopupMenu(event:ListEvent):void {
-				logger.logMessage("selected item: " + userGrid.selectedItem,this);
-				var destUserName:String = userGrid.selectedItem.userName;
-				if ( destUserName != model.main.userName && destUserName != null) {
-					logger.logMessage("myMenu: " + (myMenu == null), this);
-					logger.logMessage("selected menu: " + userGrid.selectedItem, this);
-					logger.logMessage("selected uname: " + userGrid.selectedItem.userName, this);
-					logger.logMessage("mouse pos: " + mouseX + "," + mouseY, this);
-					var point:Point = localToGlobal(new Point(mouseX, mouseY));
-					myMenu.show(point.x, point.y);
+				if (model.main.role == model.main.ROLE_AUTHOR) {
+					logger.logMessage("selected item: " + userGrid.selectedItem,this);
+					var destUserName:String = userGrid.selectedItem.userName;
+					if ( destUserName != model.main.userName && destUserName != null) {
+						logger.logMessage("myMenu: " + (myMenu == null), this);
+						logger.logMessage("selected menu: " + userGrid.selectedItem, this);
+						logger.logMessage("selected uname: " + userGrid.selectedItem.userName, this);
+						logger.logMessage("mouse pos: " + mouseX + "," + mouseY, this);
+						var point:Point = localToGlobal(new Point(mouseX, mouseY));
+						myMenu.show(point.x, point.y);
+					}
 				}
 			}
 			

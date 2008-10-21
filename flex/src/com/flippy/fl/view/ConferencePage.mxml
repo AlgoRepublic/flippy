@@ -18,16 +18,21 @@
 		
 			[Bindable]
 			public var model:FlippyModelLocator = FlippyModelLocator.getInstance();
+			public var avChatPanel:AVChatPanel;
 	
 			public function init():void {
+				if (model.main.role == model.main.ROLE_AUTHOR) {
+					avChatPanel = new AVChatPanel();
+					avChatPanel.height = 0.2 * leftPanel.height;
+					leftPanel.addChild(avChatPanel);
+				}
 			}		
 		]]>
 	</mx:Script>
 
 	<mx:HDividedBox width="100%" height="100%" >
-		<mx:VBox height="100%">
-			<view:UserListPanel width="100%" height="90%" roundedBottomCorners="true"/>
-			<view:AVChatPanel/>
+		<mx:VBox height="100%" width="20%" id="leftPanel">
+			<view:UserListPanel width="100%" height="100%" roundedBottomCorners="true"/>
 		</mx:VBox>
 		<mx:Panel width="80%" height="100%" roundedBottomCorners="true">
 			<flippy:Whiteboard readOnly="{model.main.role != 'author'}" 
