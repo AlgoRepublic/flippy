@@ -93,7 +93,7 @@
 			}
 			
 			
-			var statusMessage : String = iso( new Date() ) + " - " + "["+loggerName+"] " + msg;
+			var statusMessage : String = isoMillis( new Date() ) + " - " + "["+loggerName+"] " + msg;
 			//
 			statusText += statusMessage + "<br>";			
 		}					
@@ -151,10 +151,29 @@
 					+ ":"
 					+ doubleDigits( date.getMinutes() )
 					+ ":"
-					+ doubleDigits( date.getSeconds() )
+					+ doubleDigits( date.getSeconds() );
+					/*
 					+ "."
 					+ tripleDigits( date.getMilliseconds() );
-		}			
+					*/
+		}	
+		
+		public function isoMillis( date : Date ) : String 
+		{
+			return  doubleDigits( date.getFullYear() )
+					+ "/"
+					+ doubleDigits( date.getMonth() )
+					+ "/"
+					+ doubleDigits( date.getDate() )
+					+ " "
+					+ doubleDigits( date.getHours() )
+					+ ":"
+					+ doubleDigits( date.getMinutes() )
+					+ ":"
+					+ doubleDigits( date.getSeconds() )					
+					+ "."
+					+ tripleDigits( date.getMilliseconds() );					
+		}		
 		
 	}
 	
