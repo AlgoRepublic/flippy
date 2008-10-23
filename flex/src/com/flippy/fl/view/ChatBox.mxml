@@ -31,6 +31,7 @@
 			}	
 			
 			public function sendMessage():void {
+				
 				// get message
 				var theMsg:String = txtChatInput.text;
 
@@ -44,7 +45,11 @@
 				
 				if (theMsg.length > 0) {	
 					if (broadcast) {
-						new ChatBroadcastEvent(main.sessionId, main.userName, theMsg, new Date()).dispatch();
+						if (model.main.publicChatEnabled) {
+							new ChatBroadcastEvent(main.sessionId, main.userName, theMsg, new Date()).dispatch();
+						} else {
+							logger.logMessage("public chat disabled", this);
+						}
 					} else {
 						new ChatSendMessageEvent(main.sessionId, main.userName,	destUserName, theMsg, new Date()).dispatch();
 						onMessage(main.sessionId, main.userName, theMsg, new Date());
