@@ -3,24 +3,18 @@ package com.flippy.fl.commands
 	import com.adobe.cairngorm.commands.ICommand;
 	import com.adobe.cairngorm.control.CairngormEvent;
 	import com.flippy.fl.business.ChatDelegate;
-	import com.flippy.fl.business.LoginDelegate;
-	import com.flippy.fl.business.RoomDelegate;
 	import com.flippy.fl.events.*;
 	import com.flippy.fl.model.FlippyModelLocator;
 	import com.flippy.fl.model.Logger;
-	import com.flippy.fl.view.Login;
-	import com.flippy.fl.vo.LoginVO;
 	
 	import flash.events.SyncEvent;
 	import flash.net.Responder;
 	import flash.net.SharedObject;
-	import flash.utils.getQualifiedClassName;
 	
 	import mx.collections.ArrayCollection;
 	import mx.collections.Grouping;
 	import mx.collections.GroupingCollection;
 	import mx.collections.GroupingField;
-	import mx.rpc.IResponder;
 
 	public class ChatSetupCommand implements ICommand
 	{		
@@ -47,7 +41,7 @@ package com.flippy.fl.commands
 				initUserRSO();
 				
 				// init question RSO
-				initRSO();
+				initQuestionRSO();
 				
 				// init model RSO
 				initStateRSO();
@@ -123,7 +117,7 @@ package com.flippy.fl.commands
 		}
 		
 		/** Question Shared Object */
-		public function initRSO():void {
+		public function initQuestionRSO():void {
 	      	// init shared object
 			logger.logMessage("init so", this);
 			
@@ -200,6 +194,12 @@ package com.flippy.fl.commands
 			// update question status state
 			if (model.main.stateRSO.data.questionEnabled != undefined || model.main.stateRSO.data.questionEnabled != null) {
 				model.main.questionEnabled = model.main.stateRSO.data.questionEnabled;
+			}
+			
+			// update text chat satus state
+			if (model.main.stateRSO.data.publicChatEnabled != undefined || model.main.stateRSO.data.publicChatEnabled != null) {
+				model.main.publicChatEnabled = model.main.stateRSO.data.publicChatEnabled;
+				new ChatEvent(ChatEvent.PUBLIC_STATUS, model.main.publicChatEnabled).dispatch();
 			}
 			
 		}

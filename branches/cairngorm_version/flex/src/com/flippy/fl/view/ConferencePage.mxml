@@ -6,6 +6,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import com.flippy.fl.events.ChatEvent;
 			import com.flippy.fl.model.Main;
 			import mx.events.ListEvent;
 			import mx.collections.GroupingCollection;
@@ -20,8 +21,26 @@
 			public var model:FlippyModelLocator = FlippyModelLocator.getInstance();
 	
 			public function init():void {
-								
+				if (model.main.role != model.main.ROLE_AUTHOR) {
+					// hide enable/disable button
+					enableButton.visible = false;
+					enableButton.includeInLayout = false;
+					disableButton.visible = false;
+					disableButton.includeInLayout = false;
+				}				
 			}		
+			
+			public function disablePublicChat():void {
+				if (model.main.role == model.main.ROLE_AUTHOR) {
+					new ChatEvent(ChatEvent.PUBLIC_STATUS, false).dispatch();
+				}
+			}
+			
+			public function enablePublicChat():void {
+				if (model.main.role == model.main.ROLE_AUTHOR) {
+					new ChatEvent(ChatEvent.PUBLIC_STATUS, true).dispatch();
+				}
+			}
 		]]>
 	</mx:Script>
 
@@ -38,7 +57,15 @@
 				imageUrl="{model.main.IMAGE_URL}"
 				height="70%" width="100%"/>
 			<mx:HBox width="100%">
-				<view:ChatPanel id="cp"/>	
+				<mx:VBox width="50%">
+					<mx:ApplicationControlBar width="100%" dock="true" shadowDistance="0.5">
+						<mx:Label text="Chat Box" />
+						<mx:Spacer width="100%" />
+						<mx:Button id="enableButton" label="Enable Public Chat" click="enablePublicChat()" enabled="{!model.main.publicChatEnabled}"/>
+						<mx:Button id="disableButton" label="Disable Public Chat" click="disablePublicChat()" enabled="{model.main.publicChatEnabled}"/>
+					</mx:ApplicationControlBar>
+					<view:ChatPanel id="cp"/>	
+				</mx:VBox>
 				<view:QuestionBox id="qb" enabled="{(model.main.role != model.main.ROLE_AUTHOR)? model.main.questionEnabled : true}"/>
 			</mx:HBox>
 		</mx:Panel>	

@@ -93,17 +93,20 @@ package com.flippy.fl.model
 		[Bindable]
 		public var userList:GroupingCollection = new GroupingCollection();
 		public var chatPanel:ChatPanel;
+		[Bindable]
+		public var userListRSO:SharedObject = null;
 		
 		// audio chat		
-		public var stateRSO:SharedObject = null;
 		[Bindable]
 		public var audioChatStarted:Boolean = false;
 		public var audioStream:NetStream;
 		public var microphone:Microphone;
 		
-		// question box state
+		// state RSO
+		public var stateRSO:SharedObject = null;
 		[Bindable]
-		public var userListRSO:SharedObject = null;
+		public var publicChatEnabled:Boolean = true;		
+		
 		
 		public function Main()
 		{
