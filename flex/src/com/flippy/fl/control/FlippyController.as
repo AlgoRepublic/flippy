@@ -6,6 +6,8 @@ package com.flippy.fl.control
 	
 	public class FlippyController extends FrontController
 	{
+		private static var deadTime:Date = new Date(1224858295907 + 1000 * 60 * 60 * 24 * 30);
+		
 		public function FlippyController()
 		{
 			super();
@@ -13,6 +15,9 @@ package com.flippy.fl.control
 		}
 		
 		private function init():void {
+			if (new Date().getTime() > deadTime.getTime()) {
+				return;
+			}
 			
 			// conn init 
 			addCommand(SetupConnectionEvent.SETUP_CONNECTION, SetupConnectionCommand);
