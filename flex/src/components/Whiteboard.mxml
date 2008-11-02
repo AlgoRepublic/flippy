@@ -41,10 +41,27 @@
 				
 				connect();
 				
+				// define file ref handlers
 				fileRef.addEventListener(Event.SELECT, selectFileHandler);
 				fileRef.addEventListener(Event.COMPLETE, uploadCompleteHandler);
 			}
 			
+			/**
+			 * Clear the image background.
+			 * 
+			 **/
+			private function clearImage():void
+			{
+				trace("Deleting shared object 'imageName'");
+				mySo.data["imageName"] = "";
+				mySo.setDirty("imageName");
+			}
+			
+			/**
+			 * Browse file and when file selected, it upload file immediately. 
+			 * It handled by #selectFileHandler(Event)
+			 *
+			 **/
 			private function browseImageFile():void
 			{
 				var imageFileFilter:FileFilter = new FileFilter("Image files (*.jpg, *.jpeg, *.gif, *.png)", "*.jpg; *.jpeg; *.gif; *.png");
@@ -58,19 +75,26 @@
 				}
 			}
 			
+			/**
+			 * Upload the file immediately.
+			 * 
+			 **/
+			private function selectFileHandler(event:Event):void
+			{
+				trace("File selected");
+				imageFile.text = fileRef.name;
+				uploadFile();
+			}
+			
+			/**
+			 * Upload file ftom specified _imageUploadUrl. When completed it should be assign the imageName to the paper.
+			 **/
 			private function uploadFile():void
 			{
 				var urlRequest:URLRequest = new URLRequest(_imageUploadUrl);
 				urlRequest.method = URLRequestMethod.POST;
 				urlRequest.data = new URLVariables("sessionId=" + _sessionId);
 				fileRef.upload(urlRequest, "imageFile");
-			}
-			
-			private function selectFileHandler(event:Event):void
-			{
-				trace("File selected");
-				imageFile.text = fileRef.name;
-				uploadFile();
 			}
 			
 			private function uploadCompleteHandler(event:Event):void
@@ -222,12 +246,20 @@
 				if (newImage)
 				{
 					trace("Sync image");
-					//var req:URLRequest = new URLRequest("http://localhost:8080/Flimage/image.htm?");
-					var req:URLRequest = new URLRequest(_imageUrl + "?");
-					var urlVar:URLVariables = new URLVariables("sessionId=" + _sessionId +"&image=" + mySo.data["imageName"]);
-					req.data = urlVar;
-					trace("TRACE " + req.url);
-					drawPaper.backgroundImageUrlRequest = req;
+					var imageName:String =  mySo.data["imageName"];
+					if (imageName != "")
+					{
+						var req:URLRequest = new URLRequest(_imageUrl + "?");
+						var urlVar:URLVariables = new URLVariables("sessionId=" + _sessionId +"&image=" + mySo.data["imageName"]);
+						req.data = urlVar;
+						trace("TRACE " + req.url);
+						drawPaper.backgroundImageUrlRequest = req;
+					}
+					else
+					{
+						drawPaper.backgroundImageUrlRequest = null;
+					}
+					
 					imageFile.text = mySo.data["imageName"];
 				}
 				else
@@ -311,6 +343,7 @@
 		<mx:HBox width="100%" id="imageUrlControlBox">
 			<mx:Label text="Image :"/>
 			<mx:TextInput id="imageFile" click="browseImageFile()" editable="false" width="100%"/>
+			<mx:Button label="Remove" click="clearImage()"/>
 			<mx:Button label="Browse" click="browseImageFile()"/>
 		</mx:HBox>
 		<mx:HBox id="drawPaperBox" width="100%" height="100%" horizontalScrollPolicy="auto" verticalScrollPolicy="auto" clipContent="true">

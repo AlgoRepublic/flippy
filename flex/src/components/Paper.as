@@ -59,6 +59,12 @@ package components
 		
 		public function set backgroundImageUrlRequest(urlReq:URLRequest):void
 		{
+			if (urlReq == null)
+			{
+				bgImage = null;
+				repaintDrawables();
+				return;
+			}
 			function completeLoaded(e:Event):void
 			{
 				trace("Loaded");
