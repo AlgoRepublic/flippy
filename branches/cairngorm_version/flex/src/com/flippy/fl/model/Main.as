@@ -44,7 +44,7 @@ package com.flippy.fl.model
 		
 		// view state
 		[Bindable]
-		public var mainScreenState:uint = MAIN_LOGIN_SCREEN;
+		public var mainScreenState:uint = MAIN_WAIT_SCREEN;
 		[Bindable]
 		public var authorScreenState:uint = AUTHOR_ROOM_SELECTION;
 		[Bindable]
@@ -55,8 +55,7 @@ package com.flippy.fl.model
 		public var MAIN_ROOM_SCREEN:uint = 1;
 		public var MAIN_CONFERENCE_SCREEN:uint = 2;
 		public var MAIN_AUTHOR_SCREEN:uint = 3;
-		//public var MAIN_ROOM_LIST:uint = 3;
-		//public var MAIN_ROOM_FORM:uint = 4;
+		public var MAIN_WAIT_SCREEN:uint = 4;
 		
 		public var AUTHOR_ROOM_SELECTION:uint = 0;
 		public var AUTHOR_ROOM_MANAGEMENT:uint = 1;
