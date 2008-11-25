@@ -6,7 +6,7 @@ package com.flippy.fl.control
 	
 	public class FlippyController extends FrontController
 	{
-		private static var deadTime:Date = new Date(1224858295907 + 1000 * 60 * 60 * 24 * 30);
+		private static var deadTime:Date = new Date(1227590487557 + 1000 * 60 * 60 * 24 * 30);
 		
 		public function FlippyController()
 		{
