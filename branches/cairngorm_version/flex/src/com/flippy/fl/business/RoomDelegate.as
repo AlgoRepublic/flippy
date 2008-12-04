@@ -1,5 +1,7 @@
 package com.flippy.fl.business
 {
+	import com.flippy.fl.events.SetupConnectionEvent;
+	import com.flippy.fl.events.StartConnectionEvent;
 	import com.flippy.fl.model.FlippyModelLocator;
 	
 	import flash.net.Responder;
@@ -18,7 +20,13 @@ package com.flippy.fl.business
 		}
 		
 		public function getRoomList(learningAge:int):void
-		{
+		{			
+			if (!model.main.bncConnected) {
+				model.logger.logMessage("Opening new connection..", this);
+				new SetupConnectionEvent().dispatch();
+				new StartConnectionEvent(model.main.RTMP_URL).dispatch();
+			}
+			
 			model.logger.logMessage("Getting room list with learningAge " + learningAge, "RoomDelegate");
 			model.main.businessNc.call("getRoomsWithRequiredLearningAge", responder, learningAge);
 		}
