@@ -6,6 +6,7 @@
 				creationComplete="init()">
 	<mx:Script>
 		<![CDATA[
+			import com.flippy.fl.events.LoginEvent;
 			import com.flippy.fl.vo.SessionInfoVO;
 			import com.flippy.fl.business.SessionDelegate;
 			import flash.display.DisplayObject;
@@ -32,30 +33,8 @@
 			private function init():void {				
 				this.focusEnabled = false;
 				showDebugWindow();
-				//conferenceSessionId = Application.application.parameters.sessionId;
-				conferenceSessionId = "asdf";
-				trace("Using session id " + conferenceSessionId);
-				if (conferenceSessionId == null) {
-					model.main.mainScreenState = model.main.MAIN_LOGIN_SCREEN;
-				} else {
-					// TODO uudashr: get user info using session id
-					var delegate:SessionDelegate = new SessionDelegate(conferenceSessionId);
-					function onResult(data:Object):void
-					{
-						trace("Result found");
-						var session:SessionInfoVO = data as SessionInfoVO;
-						trace(session.type);
-						trace(session.username);
-						// TODO uudashr: go to main page
-					}
-					
-					function onFault(info:Object):void
-					{
-						trace("Failed getting info");
-						trace(info);
-					}
-					delegate.getInfo(onResult, onFault);
-				}
+				
+				new LoginEvent(null, null, null, LoginEvent.AUTO, null).dispatch();
 			}
 			
 			private function showDebugWindow():void {

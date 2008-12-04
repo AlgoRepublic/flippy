@@ -26,6 +26,8 @@ package com.flippy.fl.control
 			
 			// login
 			addCommand(LoginEvent.LOGIN, LoginCommand);
+			addCommand(LoginEvent.AUTHENTICATED, LoginAuthenticatedCommand);
+			addCommand(LoginEvent.AUTO, AutoLoginCommand);
 			
 			// question
 			addCommand(QuestionSubmitEvent.SUBMIT_QUESTION, QuestionSubmitCommand);

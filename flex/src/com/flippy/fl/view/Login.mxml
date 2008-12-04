@@ -46,12 +46,7 @@
 					}
 					
 					if (passwordValidator.validate().type == ValidationResultEvent.VALID) {
-											
-						
-						new LoginEvent( txtUserName.text, txtPwd.text, this).dispatch();
-						
-						
-						
+						new LoginEvent( txtUserName.text, txtPwd.text, this, LoginEvent.LOGIN, null).dispatch();
 					} else {
 						doInvalid("Please fill password field");
 					}
