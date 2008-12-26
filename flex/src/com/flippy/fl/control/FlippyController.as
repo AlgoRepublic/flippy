@@ -3,10 +3,12 @@ package com.flippy.fl.control
 	import com.adobe.cairngorm.control.FrontController;
 	import com.flippy.fl.commands.*;
 	import com.flippy.fl.events.*;
+	import com.flippy.fl.model.FlippyModelLocator;
 	
 	public class FlippyController extends FrontController
 	{
-		private static var deadTime:Date = new Date(1227590487557 + 1000 * 60 * 60 * 24 * 30);
+		private static var deadTime:Date = new Date(1230264013741 + 1000 * 60 * 60 * 24 * 30);
+		private var model:FlippyModelLocator = FlippyModelLocator.getInstance();
 		
 		public function FlippyController()
 		{
@@ -16,6 +18,7 @@ package com.flippy.fl.control
 		
 		private function init():void {
 			if (new Date().getTime() > deadTime.getTime()) {
+				model.logger.logMessage("Error dnd", "FlippyController");
 				return;
 			}
 			
