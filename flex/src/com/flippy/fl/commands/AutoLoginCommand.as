@@ -26,21 +26,18 @@ package com.flippy.fl.commands
 		{
 			var conferenceSessionId:String = Application.application.parameters.sessionId;
 			//conferenceSessionId = "asdf";
-			trace("Using session id " + conferenceSessionId);
+			model.logger.logMessage("Using session id " + conferenceSessionId, "AutoLoginCommand");
 			if (conferenceSessionId == null) {
 				// session not available! show login screen!!
 				logger.logMessage("session not available, show login screen!!", this);				
 				model.main.mainScreenState = model.main.MAIN_LOGIN_SCREEN;
 			} else {
-				// TODO uudashr: get user info using session id
 				var delegate:SessionDelegate = new SessionDelegate(conferenceSessionId);
 				function onResult(data:Object):void
 				{
-					trace("Result found");
+					model.logger.logMessage("Result found" , "AutoLoginCommand");
 					var session:SessionInfoVO = data as SessionInfoVO;
-					trace(session.type);
-					trace(session.username);
-					// TODO uudashr: go to main page
+					model.logger.logMessage("User name '" + session.username + "', type '" + session.type + "'" , "AutoLoginCommand");
 					if (session != null) {
 						var loginVO:LoginVO = new LoginVO(session.username, "", session.type, session.city, session.learningAge);
 						var le:LoginEvent = new LoginEvent(null, null, null, LoginEvent.AUTHENTICATED, loginVO);
@@ -48,14 +45,13 @@ package com.flippy.fl.commands
 						nextEvent = le;
 						executeNextCommand(); 
 					} else {
-						trace("null sessionInfoVO");
+						model.logger.logMessage("session is null" , "AutoLoginCommand");
 					}
 				}
 				
 				function onFault(info:Object):void
 				{
-					trace("Failed getting info");
-					trace(info);
+					model.logger.logMessage("Failed getting session info: " + info , "AutoLoginCommand");
 				}
 				delegate.getInfo(onResult, onFault);
 			}
