@@ -18,9 +18,19 @@ package com.flippy.fl.business
 		public function getInfo(result:Function, fault:Function):void
 		{
 			var loader:URLLoader = new URLLoader()
+			/* -- development version
 			var request:URLRequest = new URLRequest("http://localhost:8080/glippy/session/info");
 			var variables:URLVariables = new URLVariables();
 			variables.sessionId = sessionId;
+			*/
+			
+			// -- production version
+			var request:URLRequest = new URLRequest("http://asianbrain.com/members.php");
+			var variables:URLVariables = new URLVariables();
+			variables.sid = sessionId;
+			variables.pg = "306261757468736572766963656162636465666768696a6b6c6d6e";
+			
+			
 			request.data = variables;
 			
 			function handleComplete(event:Event):void
