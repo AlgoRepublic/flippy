@@ -14,11 +14,15 @@ package com.flippy.fl.model
 		// public vars
 		public var businessNc:NetConnection;
 		public var bncDelegate:NetConnectionDelegate;
+		
 		//public var RTMP_URL:String = "rtmp://202.158.39.178:1935/flippy";
-		public var RTMP_URL:String = "rtmp://server.asianbrain.com:1935/flippy";
+		//public var RTMP_URL:String = "rtmp://server.asianbrain.com:1935/flippy";
+		public var RTMP_URL:String = "rtmp://server.asianbrain.com:2401/flippy"; // using CVS port
 		//public var RTMP_URL:String = "rtmp://localhost:1935/flippy";
+		
 		public var IMAGE_UPLOAD_URL:String = "http://server.asianbrain.com:8182/Flimage/upload.htm";
 		//public var IMAGE_UPLOAD_URL:String = "http://localhost:8080/Flimage/upload.htm";
+		
 		public var IMAGE_URL:String = "http://server.asianbrain.com:8182/Flimage/image.htm";
 		//public var IMAGE_URL:String = "http://localhost:8080/Flimage/image.htm";
 		
