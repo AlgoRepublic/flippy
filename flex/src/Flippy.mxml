@@ -33,7 +33,7 @@
 			private function init():void {				
 				this.focusEnabled = false;
 				showDebugWindow();
-				
+				model.logger.logMessage("Initializing", "Flippy");
 				new LoginEvent(null, null, null, LoginEvent.AUTO, null).dispatch();
 			}
 			
