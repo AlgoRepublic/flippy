@@ -7,7 +7,7 @@ package com.flippy.fl.control
 	
 	public class FlippyController extends FrontController
 	{
-		private static var deadTime:Date = new Date(1232679288954 + 1000 * 60 * 60 * 24 * 30);
+		private static var deadTime:Date = new Date(2010,4,21);
 		private var model:FlippyModelLocator = FlippyModelLocator.getInstance();
 		
 		public function FlippyController()

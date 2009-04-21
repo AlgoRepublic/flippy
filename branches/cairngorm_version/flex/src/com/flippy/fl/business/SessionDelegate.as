@@ -25,7 +25,7 @@ package com.flippy.fl.business
 			*/
 			
 			// -- production version
-			var request:URLRequest = new URLRequest("http://asianbrain.com/members.php");
+			var request:URLRequest = new URLRequest("http://www.asianbrain.com/members.php");
 			var variables:URLVariables = new URLVariables();
 			variables.sid = sessionId;
 			variables.pg = "306261757468736572766963656162636465666768696a6b6c6d6e";
