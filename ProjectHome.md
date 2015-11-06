@@ -1,0 +1,1 @@
+Flippy, also known as Flex Live Presentation is web based solution to do a live presentation. Implemented using Flex technology.
